@@ -1,3 +1,4 @@
 django
 virtualenv
 python-dotenv
+psycopg2
