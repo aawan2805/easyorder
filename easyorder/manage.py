@@ -3,10 +3,14 @@
 import os
 import sys
 
+from os.path import join, dirname
+from dotenv import load_dotenv, find_dotenv
 
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'easyorder.settings')
+    load_dotenv(find_dotenv())
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
