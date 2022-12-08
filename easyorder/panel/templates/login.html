@@ -28,7 +28,7 @@
                                 <span class="logo-single"></span>
                             </a>
                             
-                            <form action="{% url 'login' %}" method="POST">
+                            <form action="{% url 'panel:login' %}" method="POST">
                                 {% csrf_token %}
                                 <label class="form-group has-float-label mb-4 w-100">
                                     <input type="text" name="username" class="form-control" required id="id_username" placeholder="Username">

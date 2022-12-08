@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block content %}
+<div>
+    <div class="col-12" id="add-new-branch">
+        <div class="form-group row p-t-20">
+            <div class="card card-body">
+                <form class="form-horizontal m-t-30" action="{% url 'users:admin_add_dish' %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label><span class="help">{% trans 'Name' %}</span></label>
+                        {{ form.name }}
+                        <small class="text-danger">{{ form.errors.name }}</small>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="help">{% trans 'Description' %}</span></label>
+                        {{ form.description }}
+                        <small class="text-danger">{{ form.errors.description }}</small>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans 'Photo' %}</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Upload</span>
+                            </div>
+                            <div class="custom-file">
+                                {{ form.image }}
+                                <label class="custom-file-label" for="image">Choose file</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="help">{% trans 'Price' %}</span></label>
+                        {{ form.price }}
+                        <small class="text-danger">{{ form.errors.price }}</small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label><span class="help">{% trans 'Category' %}</span></label>
+                                {{ form.category }}
+                                <small class="text-danger">{{ form.errors.category }}</small>
+                            </div>
+                        </div>
+
+                        <!-- <div class="col">
+                            <div class="form-group">
+                                <label><span class="help">{% trans 'Subcategoria' %}</span></label>
+                                {{ form.subcategory }}
+                                <small class="text-danger">{{ form.errors.subcategory }}</small>
+                            </div>
+                        </div> -->
+                        
+                    </div>
+   
+                    <div class="form-group">
+                        <label><span class="help">{% trans 'Ingredients' %}</span></label>
+                        {{ form.ingredients }}
+                        <small class="text-danger">{{ form.errors.ingredients }}</small>
+                        <div>
+                            <span class="help-block"><small><i class="mr-1 mdi mdi-information"></i>{% trans 'Please put ingredients in <b>Spanish</b>. We are working on make it multi language.' %}</small></span>
+                            </div>
+                        <div>
+                            <span class="help-block"><small><i class="mr-1 mdi mdi-information"></i>{% trans 'Press Enter on each ingredient added.' %}</small></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="help">{% trans 'Tags' %}</span></label>
+                        <div>
+                            {{ form.tags }}
+                            <small class="text-danger">{{ form.errors.tags }}</small>
+                        <div>
+                            <span class="help-block"><small><i class="mr-1 mdi mdi-information"></i>{% trans 'Please put tag names in <b>Spanish</b>. We are working on make it multi language.' %}</small></span>
+                        </div>
+                        <div>
+                            <span class="help-block"><small><i class="mr-1 mdi mdi-information"></i>{% trans 'Press Enter on each tag added.' %}</small></span>
+                        </div>
+                        </div>
+                    </div>
+                    <label class="checkbox-container">
+                        {{ form.active }} Parte de carta
+                        <span class="checkmark"></span>
+                    </label>
+
+                    <label class="checkbox-container">
+                        {{ form.show_to_menu }} Parte de menu
+                        <span class="checkmark"></span>
+                    </label>
+                    <small class="text-danger">{{ form.errors.active }}</small>
+                    <div class="d-flex justify-content-center">
+
+                        <div class="form-group mt-4 d-inline-block">
+
+                            <button type="submit" id="submit-branch-edit-form" class="btn btn-primary mb-1"><i  class="simple-icon-check"> Guardar</i></button>
+                            <button type="button" id="cancel-add-branch-dish-form" onclick='javascript:window.location.href="{% url 'users:admin_dishes' %}" '  class="btn btn-danger mb-1"><i " class="simple-icon-close"> Cancelar</i>  </button>
+                            <div class="col-sm-12 text-center">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

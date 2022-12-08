@@ -2,3 +2,4 @@ django
 virtualenv
 python-dotenv
 psycopg2
+pillow

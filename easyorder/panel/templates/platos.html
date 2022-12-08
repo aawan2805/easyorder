@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="row">
+        <div class="col-12">
+            <a class="btn btn-primary" href="{% url 'panel:home' %}" role="button">Añadir plato</a>
+        </div>
+    </div>
+    <div class="row mt-2">
+        {% if not platos %}
+            <p>No tienes platos. <a href="{% url 'panel:home' %}">Añade uno.</a></p>
+        {% else %}
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Descripción</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">Foto</th>
+                    <th scope="col">Acción</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for plato in platos %}
+                        <td>{{ plato.name }}</th>
+                        <td>{{ plato.description }}</th>
+                        <td>{{ plato.price }}€</th>
+                        <td>{{ plato.photo }}</th>
+                        <td></th>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+          
+    </div>
+{% endblock %}
