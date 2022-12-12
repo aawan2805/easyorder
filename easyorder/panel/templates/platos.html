@@ -2,12 +2,12 @@
 {% block content %}
     <div class="row">
         <div class="col-12">
-            <a class="btn btn-primary" href="{% url 'panel:home' %}" role="button">Añadir plato</a>
+            <a class="btn btn-primary" href="{% url 'panel:add-plato' %}" role="button">Añadir plato</a>
         </div>
     </div>
     <div class="row mt-2">
         {% if not platos %}
-            <p>No tienes platos. <a href="{% url 'panel:home' %}">Añade uno.</a></p>
+            <p>No tienes platos. <a href="{% url 'panel:add-plato' %}">Añade uno.</a></p>
         {% else %}
             <table class="table">
                 <thead>

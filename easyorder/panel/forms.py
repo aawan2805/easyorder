@@ -7,11 +7,11 @@ class AddDish(ModelForm):
     def __init__(self, user=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
-        category_query_set = Category.objects.filter(brand=user.profile.branch)
+        # category_query_set = Category.objects.filter(brand=user.profile.branch)
         # Displays the label isnted of id in the input.
 
-        self.fields['category'] = forms.ModelChoiceField(queryset=category_query_set, empty_label=None, widget=forms.Select(attrs={'class': 'form-control','data-live-search': 'true', 'title':'Choose one of the following...'}), required=True)
-        self.fields['category'].label_from_instance = lambda category: '{}'.format(category.name)
+        # self.fields['category'] = forms.ModelChoiceField(queryset=category_query_set, empty_label=None, widget=forms.Select(attrs={'class': 'form-control','data-live-search': 'true', 'title':'Choose one of the following...'}), required=True)
+        # self.fields['category'].label_from_instance = lambda category: '{}'.format(category.name)
         self.fields['tags'].initial = None
         self.fields['image'].widget.attrs['class'] = 'custom-file-input'
         self.fields['image'].widget.attrs['id'] = 'image'
