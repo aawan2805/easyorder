@@ -12,7 +12,11 @@
     <link rel="stylesheet" href="{% static 'css/dore.light.greenlime.min.css' %}"  />
 </head>
 <body class="background no-footer">
-    <div class="fixed-background"></div>
+    <div class="fixed-background">
+        {% if form.errors %}
+        <p>Your username and password didn't match. Please try again.</p>
+        {% endif %}
+    </div>
         <div class="container">
             <div class="row h-100">
                 <div class="col-12 col-md-10 mx-auto my-auto">
@@ -27,7 +31,6 @@
                             <a>
                                 <span class="logo-single"></span>
                             </a>
-                            
                             <form action="{% url 'panel:login' %}" method="POST">
                                 {% csrf_token %}
                                 <label class="form-group has-float-label mb-4 w-100">

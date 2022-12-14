@@ -1,6 +1,20 @@
 from django.db import models
 from django.db.models import JSONField
 import uuid
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
+from django.conf import settings
+
+
+# class User(AbstractUser): # It is called panel_user in the database.
+#     address = models.CharField(max_length=100, null=True, default='', blank=True)
+#     brand = models.OneToOneField('Brand', on_delete=models.CASCADE, null=True, blank=True)
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=False, blank=False)
+    brand = models.OneToOneField('Brand', on_delete=models.CASCADE, null=False, blank=False)
+    address = models.CharField(max_length=100, null=True, default='', blank=True)
 
 
 class Brand(models.Model):
@@ -38,7 +52,7 @@ class Category(models.Model):
 
 def dishes_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return 'dishes/{0}/{1}.png'.format(str(instance.branch.uuid), str(instance.uuid))
+    return 'dishes/{0}/{1}.png'.format(str(instance.brand.uuid), str(instance.uuid))
 
 # Create your models here.
 class Dish(models.Model):
@@ -47,19 +61,21 @@ class Dish(models.Model):
     description = models.CharField(max_length=150)
     price = models.FloatField()
     category = models.ForeignKey(Category, models.DO_NOTHING, related_name='dishes')
-    ingredients = JSONField(default=list, blank=True)
+    ingredients = models.CharField(max_length=100, default="", blank=True)
     brand = models.ForeignKey(Brand, models.DO_NOTHING, related_name='dishes')
     photo = models.ImageField(upload_to=dishes_directory_path, blank=True, null=True)
-    tags = JSONField(default=list, blank=True) # Para advertencias (alergicos, etc...)
+    tags = models.CharField(max_length=100, default="", blank=True) # Para advertencias (alergicos, etc...)
     active = models.BooleanField(default=True, blank=False, null=False)
 
     class Meta:
         db_table = 'dish'
         ordering = ['name']
 
-    def __str__(self):
-        return self.name
-
     def __repr__(self):
         return "{} - {}".format(self.__class__.__name__, self.uuid)
 
+    def get_photo(self):
+        if self.photo:
+            return self.photo.url
+        else:
+            return settings.STATIC_URL + 'img/default/meal.png'

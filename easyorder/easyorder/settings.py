@@ -53,6 +53,10 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'easyorder.urls'
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+)
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -81,10 +85,10 @@ DATABASES = {
         'NAME': os.environ.get('POSTGRES_NAME'),
         'USER': os.environ.get('POSTGRES_USER'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': 'db',
+        'HOST': os.environ.get('POSTGRES_HOST', 'db'),
         'PORT': 5432,
     }
-} 
+}
 
 
 # Password validation
@@ -128,3 +132,9 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# AUTH_USER_MODEL = 'panel.User' 
+LOGIN_URL = '/accounts/login'
+LOGIN_REDIRECT_URL = '/platos'
+
+MEDIA_ROOT =  os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'

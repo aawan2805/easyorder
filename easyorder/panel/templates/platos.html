@@ -1,12 +1,34 @@
 {% extends "base.html" %}
+
+{% block messages %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+        {% if message.tags == 'success' %}
+            <div class="alert alert-success" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+        {% if message.tags == 'error' %}
+            <div class="alert alert-error" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}
+
+
 {% block content %}
+
     <div class="row">
         <div class="col-12">
             <a class="btn btn-primary" href="{% url 'panel:add-plato' %}" role="button">Añadir plato</a>
         </div>
     </div>
     <div class="row mt-2">
-        {% if not platos %}
+        {% if not object_list %}
             <p>No tienes platos. <a href="{% url 'panel:add-plato' %}">Añade uno.</a></p>
         {% else %}
             <table class="table">
@@ -15,18 +37,39 @@
                     <th scope="col">Nombre</th>
                     <th scope="col">Descripción</th>
                     <th scope="col">Precio</th>
+                    <th scope="col">Ingredientes</th>
+                    <th scope="col">Etiquetas</th>
                     <th scope="col">Foto</th>
-                    <th scope="col">Acción</th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
                 </tr>
-                </thead>
-                <tbody>
-                    {% for plato in platos %}
-                        <td>{{ plato.name }}</th>
-                        <td>{{ plato.description }}</th>
-                        <td>{{ plato.price }}€</th>
-                        <td>{{ plato.photo }}</th>
-                        <td></th>
-                    {% endfor %}
+            </thead>
+            <tbody>
+                {% for plato in object_list %}
+                <tr>
+                    <td>{{ plato.name }}</th>
+                    <td>{{ plato.description }}</th>
+                    <td>{{ plato.price }}€</th>
+                    <td>{{ plato.ingredients }}</th>
+                    <td>{{ plato.tags }}</th>
+                    <td><img src="/media/{{ plato.photo }}" alt="{{ plato.name }}" height="70" width="70"></th>
+                    <!-- <td><a href="{% url 'panel:edit-plato' plato.uuid %}">Editar</a></td> -->
+                    <td>
+                        <a href="{% url 'panel:edit-plato' plato.uuid %}">
+                            <button class="btn btn-success">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'panel:delete-plato' plato.uuid %}">
+                            <button class="btn btn-danger">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </a>
+                    </td>
+                <tr>
+                {% endfor %}
                 </tbody>
             </table>
         {% endif %}
