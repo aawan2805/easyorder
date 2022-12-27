@@ -3,5 +3,5 @@ from api.views import DishView
 
 
 urlpatterns = [
-    path('dishes', DishView.as_view(), name='get-platos'),
+    path('dishes/<uuid:brand_uuid>', DishView.as_view(), name='get-platos'),
 ]
