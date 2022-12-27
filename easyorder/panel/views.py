@@ -19,7 +19,7 @@ class LoginUser(LoginView):
 
     def get(self, request, *args, **kwargs):
         return super().get(self, request, *args, **kwargs)
-
+ 
     def post(self, request, *args, **kwargs):
         """
         Handle POST requests: instantiate a form instance with the passed

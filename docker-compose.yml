@@ -23,6 +23,7 @@ services:
       - POSTGRES_NAME=easyorder
       - POSTGRES_USER=easyorder
       - POSTGRES_PASSWORD=easyorder
+      - PYTHONUNBUFFERED=1
     depends_on:
       - db
 
