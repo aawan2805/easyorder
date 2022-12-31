@@ -4,3 +4,4 @@ python-dotenv
 psycopg2
 pillow
 djangorestframework
+django-cors-headers

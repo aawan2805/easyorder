@@ -26,4 +26,3 @@ services:
       - PYTHONUNBUFFERED=1
     depends_on:
       - db
-
