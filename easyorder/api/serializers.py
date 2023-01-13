@@ -13,6 +13,12 @@ class ListCategoryByUuid(serializers.Serializer):
     icon = serializers.CharField(max_length=200)
     label = serializers.CharField(max_length=200)
 
+
+class PostNewOrder(serializers.Serializer):
+    dish_uuid = serializers.UUIDField()
+    quantity = serializers.IntegerField()
+
+
 # class listcategorybyuuid(serializers.ModelSerializer):
 #     class Meta:
 #         model = Category

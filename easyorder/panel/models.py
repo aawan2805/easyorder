@@ -79,3 +79,13 @@ class Dish(models.Model):
             return self.photo.url
         else:
             return settings.STATIC_URL + 'img/default/meal.png'
+
+
+class Order(models.Model):
+    dishes = models.ManyToManyField(Dish)
+    order_placed_at = models.DateTimeField(blank=True, null=True)
+    order_delivered_at = models.DateTimeField(blank=True, null=True)
+    ws_code = models.CharField(max_length=50)
+
+# class Review(models.Model):
+#     pass

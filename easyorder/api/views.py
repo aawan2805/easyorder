@@ -1,8 +1,12 @@
+from datetime import datetime
+
 from django.shortcuts import get_object_or_404
 from panel.models import *
-from rest_framework.generics import ListAPIView
-from api.serializers import PlatosSerializer, ListCategoryByUuid
+from rest_framework.generics import ListAPIView, CreateAPIView
+from api.serializers import PlatosSerializer, ListCategoryByUuid, PostNewOrder
 from panel.models import *
+from rest_framework import status
+from rest_framework.response import Response
 
 
 class DishView(ListAPIView):
@@ -39,3 +43,22 @@ class CategoryView(ListAPIView):
             })
 
         return categories
+
+
+class OrderView(CreateAPIView):
+    serializer_class = PostNewOrder
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, many=True)
+        if serializer.is_valid():
+            all_dishes = [dish["dish_uuid"] for dish in request.data]
+            dishes = [get_object_or_404(Dish, uuid=dish) for dish in all_dishes]
+            new_order = Order(order_placed_at=datetime.now(), order_delivered_at=datetime.now(), ws_code="RANDOMSTRINGFORWS")
+            new_order.save()
+
+            for dish in dishes:
+                new_order.dishes.add(dish)
+            new_order.save()
+
+            headers = self.get_success_headers(serializer.data)
+            return Response(data={"msg": "Done"}, status=status.HTTP_201_CREATED, headers=headers)
