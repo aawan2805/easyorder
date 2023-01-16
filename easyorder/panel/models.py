@@ -5,7 +5,6 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
 from django.conf import settings
 
-
 # class User(AbstractUser): # It is called panel_user in the database.
 #     address = models.CharField(max_length=100, null=True, default='', blank=True)
 #     brand = models.OneToOneField('Brand', on_delete=models.CASCADE, null=True, blank=True)

@@ -7,6 +7,7 @@ from api.serializers import PlatosSerializer, ListCategoryByUuid, PostNewOrder
 from panel.models import *
 from rest_framework import status
 from rest_framework.response import Response
+from api.helper import ApiResponse
 
 
 class DishView(ListAPIView):
@@ -61,4 +62,7 @@ class OrderView(CreateAPIView):
             new_order.save()
 
             headers = self.get_success_headers(serializer.data)
-            return Response(data={"msg": "Done"}, status=status.HTTP_201_CREATED, headers=headers)
+            rsp = ApiResponse(data={"msg": f'Order placed! Your tracking number is {new_order.ws_code}'},
+                              status=status.HTTP_201_CREATED, 
+                              headers=headers)
+            return rsp.response()
