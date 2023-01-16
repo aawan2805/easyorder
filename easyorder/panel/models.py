@@ -81,10 +81,17 @@ class Dish(models.Model):
 
 
 class Order(models.Model):
+    ORDER_PLACED = 0
+    ORDER_ACCEPTED = 1
+    ORDER_PREPARING = 2
+    ORDER_PREPARED = 3
+    ORDER_DELIVERED = 4
+
     dishes = models.ManyToManyField(Dish)
     order_placed_at = models.DateTimeField(blank=True, null=True)
     order_delivered_at = models.DateTimeField(blank=True, null=True)
-    ws_code = models.CharField(max_length=50)
+    ws_code = models.CharField(max_length=50) #unique=True)
+    status = models.IntegerField(default=ORDER_PLACED)
 
 # class Review(models.Model):
 #     pass
