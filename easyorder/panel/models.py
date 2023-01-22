@@ -80,18 +80,26 @@ class Dish(models.Model):
             return settings.STATIC_URL + 'img/default/meal.png'
 
 
+ORDER_PLACED = 0
+ORDER_ACCEPTED = 1
+ORDER_PREPARING = 2
+ORDER_PREPARED = 3
+ORDER_DELIVERED = 4
+ORDER_CHOICES = (
+    (ORDER_PLACED, 0),
+    (ORDER_ACCEPTED, 1),
+    (ORDER_PREPARING, 2),
+    (ORDER_PREPARED, 3),
+    (ORDER_DELIVERED, 4),
+)
 class Order(models.Model):
-    ORDER_PLACED = 0
-    ORDER_ACCEPTED = 1
-    ORDER_PREPARING = 2
-    ORDER_PREPARED = 3
-    ORDER_DELIVERED = 4
-
-    dishes = models.ManyToManyField(Dish)
-    order_placed_at = models.DateTimeField(blank=True, null=True)
+    dishes = models.ManyToManyField(Dish, related_name='dishes')
+    order_placed_at = models.DateTimeField(blank=False, null=False)
     order_delivered_at = models.DateTimeField(blank=True, null=True)
     ws_code = models.CharField(max_length=50) #unique=True)
-    status = models.IntegerField(default=ORDER_PLACED)
+    status = models.IntegerField(default=ORDER_PLACED, choices=ORDER_CHOICES)
+    brand = models.ForeignKey(Brand, related_name='orders', on_delete=models.DO_NOTHING)
+    amount = models.FloatField(default=0.0)
 
 # class Review(models.Model):
 #     pass

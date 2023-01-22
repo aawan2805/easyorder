@@ -9,4 +9,5 @@ urlpatterns = [
     path('add-plato', AddDishView.as_view(), name='add-plato'),
     path('edit-plato/<uuid:dish_id>', EditDish.as_view(), name='edit-plato'),
     path('delete-plato/<uuid:dish_id>', DeleteDish.as_view(), name='delete-plato'),
+    path('orders', OrdersView.as_view(), name='orders'),
 ]

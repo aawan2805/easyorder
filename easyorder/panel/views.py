@@ -124,3 +124,13 @@ class DeleteDish(DeleteView):
             messages.success(request, f'No se pudo borrar el plato {dish_name}. Porfavor inténtelo más tarde.')
 
         return redirect(self.get_success_url())
+
+
+class OrdersView(LoginRequiredMixin, ListView):
+    model = Order
+    template_name = 'orders.html'
+
+    def get_queryset(self):
+        qs = Order.objects.filter(brand=self.request.user.profile.brand).prefetch_related('dishes')
+        return qs
+

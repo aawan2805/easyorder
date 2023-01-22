@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block messages %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+        {% if message.tags == 'success' %}
+            <div class="alert alert-success" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+        {% if message.tags == 'error' %}
+            <div class="alert alert-error" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}
+
+
+{% block content %}
+    <div class="row mt-2">
+        {% if not object_list %}
+            <div class="alert alert-primary" role="alert">
+                No hay pedidos recientes.
+            </div>
+        {% else %}
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Hora del pedido</th>
+                    <th scope="col">Platos</th>
+                    <th scope="col">Código</th>
+                    <th scope="col">Hora de entrega</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Importe</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in object_list %}
+                    <tr>
+                        <td>{{ order.order_placed_at  }}</td>
+                        <td>
+                        {% for dish in order.dishes.all %}
+                        <span class="badge text-bg-success">{{ dish.name }}</span>
+                        {% endfor %}
+                        </td>
+                        <td>{{ order.ws_code }}</td>
+                        <td>{{ order.order_delivered_at }}</td>
+                        <td>
+                            <form action="" method="get">
+                                <select class="form-select" name="status" id="status">
+                                    <option value="0">ORDER PLACED</option>
+                                    <option value="1">ORDER ACCEPTED</option>
+                                    <option value="2">PREPARING ORDER</option>
+                                    <option value="3">ORDER PREPARED</option>
+                                    <option value="4">ORDER DELIVERED</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>{{ order.amount }}€</td>
+                    <tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+          
+    </div>
+{% endblock %}

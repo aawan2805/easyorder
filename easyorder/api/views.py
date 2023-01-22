@@ -52,9 +52,19 @@ class OrderView(CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data, many=True)
         if serializer.is_valid():
+            total_amount = 0.0
             all_dishes = [dish["dish_uuid"] for dish in request.data]
-            dishes = [get_object_or_404(Dish, uuid=dish) for dish in all_dishes]
-            new_order = Order(order_placed_at=datetime.now(), order_delivered_at=datetime.now(), ws_code="RANDOMSTRINGFORWS")
+            dishes = []
+            for dish in all_dishes:
+                aux = get_object_or_404(Dish, uuid=dish)
+                dishes.append(aux)
+                total_amount += aux.price
+
+            new_order = Order(order_placed_at=datetime.now(),
+                              order_delivered_at=datetime.now(), 
+                              ws_code="RANDOMSTRINGFORWS",
+                              brand=Brand.objects.get(uuid="e46ba39f-6227-48d4-9380-f941727a643f"),
+                              amount=total_amount)
             new_order.save()
 
             for dish in dishes:
