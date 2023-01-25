@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'panel',
     'api',
     'rest_framework',
-    'corsheaders'
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -54,6 +54,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    # My custom middleware to handle the cookies issue.
+    'api.middleware.BrandCookieMiddleware',
 ]
 
 ROOT_URLCONF = 'easyorder.urls'

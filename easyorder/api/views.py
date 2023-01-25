@@ -25,11 +25,18 @@ class DishView(ListAPIView):
         return Dish.objects.filter(brand=brand, category=category)
 
 
+    def get(self, request, *args, **kwargs):
+        response = super().get(self, request, *args, **kwargs)
+        response['Access-Control-Allow-Credentials'] = 'true'
+        return response
+
+
 class CategoryView(ListAPIView):
     http_method_names = ['get'] 
     serializer_class = ListCategoryByUuid
     model = Category
     lookup_field = 'brand_uuid'
+    brand = None
 
     def get_queryset(self):
         brand_uuid = self.kwargs.get('brand_uuid')
@@ -44,6 +51,17 @@ class CategoryView(ListAPIView):
             })
 
         return categories
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(self, request, *args, **kwargs)
+        if 'brand' not in request.COOKIES:
+            # Setting the cookie for 30 mins to store the brand uuid
+            response.set_cookie('brand', self.brand or self.kwargs.get('brand_uuid'), max_age=30)
+        else:
+            print(request.COOKIES['brand'])
+
+        response['Access-Control-Allow-Credentials'] = 'true'
+        return response
 
 
 class OrderView(CreateAPIView):
