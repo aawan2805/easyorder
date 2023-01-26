@@ -1,10 +1,11 @@
+import uuid
+
 from django.db import models
 from django.db.models import JSONField
-import uuid
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
 from django.conf import settings
-
+from django.utils.crypto import get_random_string
 # class User(AbstractUser): # It is called panel_user in the database.
 #     address = models.CharField(max_length=100, null=True, default='', blank=True)
 #     brand = models.OneToOneField('Brand', on_delete=models.CASCADE, null=True, blank=True)
@@ -96,10 +97,17 @@ class Order(models.Model):
     dishes = models.ManyToManyField(Dish, related_name='dishes')
     order_placed_at = models.DateTimeField(blank=False, null=False)
     order_delivered_at = models.DateTimeField(blank=True, null=True)
-    ws_code = models.CharField(max_length=50) #unique=True)
+    ws_code = models.CharField(max_length=50, unique=True)
     status = models.IntegerField(default=ORDER_PLACED, choices=ORDER_CHOICES)
     brand = models.ForeignKey(Brand, related_name='orders', on_delete=models.DO_NOTHING)
     amount = models.FloatField(default=0.0)
+    order_collection_code = models.CharField(max_length=10, unique=True, null=True, blank=True)
+
+    def set_random_ws(self):
+        self.ws_code = get_random_string(length=50)
+
+    def set_order_collection_code(self):
+        self.order_collection_code = f'ES{self.id+1}'
 
 # class Review(models.Model):
 #     pass

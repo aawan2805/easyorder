@@ -1,5 +1,4 @@
-from datetime import datetime
-
+from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from panel.models import *
 from rest_framework.generics import ListAPIView, CreateAPIView
@@ -25,10 +24,10 @@ class DishView(ListAPIView):
         return Dish.objects.filter(brand=brand, category=category)
 
 
-    def get(self, request, *args, **kwargs):
-        response = super().get(self, request, *args, **kwargs)
-        response['Access-Control-Allow-Credentials'] = 'true'
-        return response
+    # def get(self, request, *args, **kwargs):
+    #     response = super().get(self, request, *args, **kwargs)
+    #     response['Access-Control-Allow-Credentials'] = 'true'
+    #     return response
 
 
 class CategoryView(ListAPIView):
@@ -52,16 +51,16 @@ class CategoryView(ListAPIView):
 
         return categories
 
-    def get(self, request, *args, **kwargs):
-        response = super().get(self, request, *args, **kwargs)
-        if 'brand' not in request.COOKIES:
-            # Setting the cookie for 30 mins to store the brand uuid
-            response.set_cookie('brand', self.brand or self.kwargs.get('brand_uuid'), max_age=30)
-        else:
-            print(request.COOKIES['brand'])
+    # def get(self, request, *args, **kwargs):
+    #     response = super().get(self, request, *args, **kwargs)
+    #     if 'brand' not in request.COOKIES:
+    #         # Setting the cookie for 30 mins to store the brand uuid
+    #         response.set_cookie('brand', self.brand or self.kwargs.get('brand_uuid'), max_age=30)
+    #     else:
+    #         print(request.COOKIES['brand'])
 
-        response['Access-Control-Allow-Credentials'] = 'true'
-        return response
+    #     response['Access-Control-Allow-Credentials'] = 'true'
+    #     return response
 
 
 class OrderView(CreateAPIView):
@@ -77,20 +76,22 @@ class OrderView(CreateAPIView):
                 aux = get_object_or_404(Dish, uuid=dish)
                 dishes.append(aux)
                 total_amount += aux.price
-
-            new_order = Order(order_placed_at=datetime.now(),
-                              order_delivered_at=datetime.now(), 
-                              ws_code="RANDOMSTRINGFORWS",
+            new_order = Order(order_placed_at=timezone.now(),
+                              order_delivered_at=None,
                               brand=Brand.objects.get(uuid="e46ba39f-6227-48d4-9380-f941727a643f"),
                               amount=total_amount)
+            # Set ws code and collection code
             new_order.save()
+            new_order.set_order_collection_code()
+            new_order.set_random_ws()
 
             for dish in dishes:
                 new_order.dishes.add(dish)
             new_order.save()
 
             headers = self.get_success_headers(serializer.data)
-            rsp = ApiResponse(data={"msg": f'Order placed! Your tracking number is {new_order.ws_code}'},
-                              status=status.HTTP_201_CREATED, 
-                              headers=headers)
-            return rsp.response()
+            rsp = ApiResponse(data={"msg": f'Order placed! Your tracking number is {new_order.order_collection_code}'},
+                              status=status.HTTP_201_CREATED
+                             )
+            rsp.set_cookie('collection_code', new_order.order_collection_code)
+            return rsp.get_response()
