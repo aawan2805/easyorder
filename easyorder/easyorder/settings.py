@@ -55,7 +55,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     # My custom middleware to handle the cookies issue.
-    'api.middleware.BrandCookieMiddleware',
+    # 'api.middleware.BrandCookieMiddleware',
 ]
 
 ROOT_URLCONF = 'easyorder.urls'

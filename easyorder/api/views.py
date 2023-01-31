@@ -67,10 +67,11 @@ class OrderView(CreateAPIView):
     serializer_class = PostNewOrder
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data, many=True)
-        if serializer.is_valid():
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            print(serializer.data)
             total_amount = 0.0
-            all_dishes = [dish["dish_uuid"] for dish in request.data]
+            all_dishes = [dish["dish_uuid"] for dish in request.data.get('dishes', [])]
             dishes = []
             for dish in all_dishes:
                 aux = get_object_or_404(Dish, uuid=dish)
@@ -78,7 +79,7 @@ class OrderView(CreateAPIView):
                 total_amount += aux.price
             new_order = Order(order_placed_at=timezone.now(),
                               order_delivered_at=None,
-                              brand=Brand.objects.get(uuid="e46ba39f-6227-48d4-9380-f941727a643f"),
+                              brand=Brand.objects.get(uuid=request.data.get('brand_uuid')),
                               amount=total_amount)
             # Set ws code and collection code
             new_order.save()
@@ -88,10 +89,15 @@ class OrderView(CreateAPIView):
             for dish in dishes:
                 new_order.dishes.add(dish)
             new_order.save()
-
+            print("PUTA")
             headers = self.get_success_headers(serializer.data)
-            rsp = ApiResponse(data={"msg": f'Order placed! Your tracking number is {new_order.order_collection_code}'},
-                              status=status.HTTP_201_CREATED
+            rsp = ApiResponse(data={
+                                    "msg": f'Order placed! Your tracking number is {new_order.order_collection_code}',
+                                    "store": True,
+                                    "delete_prev": True,
+                                    "collection_code": new_order.order_collection_code
+                                   },
+                              status=status.HTTP_201_CREATED,
+                              headers=headers
                              )
-            rsp.set_cookie('collection_code', new_order.order_collection_code)
             return rsp.get_response()

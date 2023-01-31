@@ -14,10 +14,14 @@ class ListCategoryByUuid(serializers.Serializer):
     label = serializers.CharField(max_length=200)
 
 
-class PostNewOrder(serializers.Serializer):
+class OrderDishes(serializers.Serializer):
     dish_uuid = serializers.UUIDField()
     quantity = serializers.IntegerField()
 
+
+class PostNewOrder(serializers.Serializer):
+    dishes = serializers.ListField(child=OrderDishes())
+    brand_uuid = serializers.UUIDField()
 
 # class listcategorybyuuid(serializers.ModelSerializer):
 #     class Meta:

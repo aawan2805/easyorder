@@ -23,11 +23,11 @@ class BrandCookieMiddleware(object):
 
     def process_template_response(self, request, response):
         # Code to be executed for each request/response after
-        if request.path != ROOT_URL and any([request.path.startswith(url) for url in ALLOWED_URLS]):
-            if 'collection_code' in request.COOKIES:
-                print("Set", request.COOKIES['collection_code'])
-            else:
-                print("NOT SET")
+        # if request.path != ROOT_URL and any([request.path.startswith(url) for url in ALLOWED_URLS]):
+        #     if 'collection_code' in request.COOKIES:
+        #         print("Set", request.COOKIES['collection_code'])
+        #     else:
+        #         print("NOT SET")
         response['Access-Control-Allow-Credentials'] = 'true'
         return response
 
