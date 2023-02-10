@@ -3,11 +3,18 @@ from django.urls import path, include
 from panel.views import *
 
 urlpatterns = [
-    # path('', LoginUser.as_view(), name='login'),
+    path('', Platos.as_view(), name='home'),
     path('accounts/', include('django.contrib.auth.urls')),
+
     path('platos', Platos.as_view(), name='platos'),
     path('add-plato', AddDishView.as_view(), name='add-plato'),
     path('edit-plato/<uuid:dish_id>', EditDish.as_view(), name='edit-plato'),
     path('delete-plato/<uuid:dish_id>', DeleteDish.as_view(), name='delete-plato'),
+
+    path('categorias', Categories.as_view(), name='categorias'),
+    path('add-categoria', AddCategoryView.as_view(), name='add-category'),
+    path('edit-categoria/<uuid:category_id>', EditCategory.as_view(), name='edit-category'),
+
     path('orders', OrdersView.as_view(), name='orders'),
+    path('change-status/<int:order>', ChangeOrderStatus.as_view(), name='change-order-status'),
 ]

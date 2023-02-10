@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block messages %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+        {% if message.tags == 'success' %}
+            <div class="alert alert-success" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+        {% if message.tags == 'error' %}
+            <div class="alert alert-error" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}
+
+
+{% block content %}
+    <div class="row">
+        <div class="col-12">
+            <a class="btn btn-primary" href="{% url 'panel:add-category' %}" role="button">Añadir catgegoría</a>
+        </div>
+    </div>
+    <div class="row mt-2">
+        {% if not object_list %}
+            <div class="alert alert-primary" role="alert">
+                No tienes categorías.
+            </div>
+        {% else %}
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Ícono</th>
+                    <th scope="col">Por defecto?</th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in object_list %}
+                    <tr>
+                        <td>{{ category.name }}</td>
+                        <td>{{ category.icon }}</td>
+                        <td>{% if category.default %} Sí {% else %} No {% endif %}</td>
+                        <td>
+                            <a href="{% url 'panel:edit-category' category.uuid %}">
+                                <button class="btn btn-success">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'panel:delete-plato' category.uuid %}">
+                                <button class="btn btn-danger">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </a>
+                        </td>
+    
+                    <tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+          
+    </div>
+{% endblock %}

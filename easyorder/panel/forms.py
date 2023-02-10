@@ -1,7 +1,8 @@
 from django import forms
 from panel.models import *
-from django.forms import ModelForm
+from django.forms import ModelForm, Form
 from django.conf import settings
+from django.contrib import messages
 
 
 class AddDish(ModelForm):
@@ -88,3 +89,66 @@ class EditDishForm(ModelForm):
         parent_dish.save()
 
         return parent_dish
+
+
+class ChangeOrderStatus(ModelForm):
+    class Meta:
+        model = Order
+        # exclude = ('dishes', 
+        #            'order_placed_at', 
+        #            'order_delivered_at', 
+        #            'ws_code', 
+        #            'brand', 
+        #            'amount', 
+        #            'order_collection_code',)
+        fields = ['status']
+
+
+class EditCategoryForm(ModelForm):
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    class Meta:
+        model = Category
+        fields = ['name', 'icon', 'default']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'icon': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+    def clean_default(self):
+        if self.cleaned_data.get('default', False):
+            data = Category.objects.filter(default=True, brand=self.user.profile.brand).exclude(uuid=self.instance.uuid)
+            if data:
+                raise forms.ValidationError('Ya existe una categoría por defecto.')
+        
+        return self.cleaned_data.get('default')
+
+
+class AddCategoryFrom(ModelForm):
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+ 
+    class Meta: 
+        model = Category
+        fields = ['name', 'icon', 'default']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'icon': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+    def clean_default(self):
+        if self.cleaned_data.get('default', False):
+            data = Category.objects.filter(default=True, brand=self.user.profile.brand)
+            if data:
+                raise forms.ValidationError('Ya existe una categoría por defecto.')
+        
+        return self.cleaned_data.get('default')
+
+    def save(self, commit=False):
+        new_dish = Category(**self.cleaned_data)
+        new_dish.brand = self.user.profile.brand
+        new_dish.save()
+        return new_dish

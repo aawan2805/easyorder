@@ -28,6 +28,9 @@
               <a class="nav-link" href="{% url 'panel:orders' %}">Pedidos</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link" href="{% url 'panel:categorias' %}">Categories</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" href="{% url 'panel:logout' %}">Logout</a>
             </li>
           </ul>
@@ -67,5 +70,6 @@
       </div>
     </div>
 
+    {% block script %}{% endblock script %}
 </body>
 </html>

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 
 {% block messages %}
 {% if messages %}
@@ -41,26 +42,27 @@
             <tbody>
                 {% for order in object_list %}
                     <tr>
-                        <td>{{ order.order_placed_at  }}</td>
+                        <td>{{ order.order_placed_at|naturaltime  }}</td>
                         <td>
                         {% for dish in order.dishes.all %}
                         <span class="badge text-bg-success">{{ dish.name }}</span>
                         {% endfor %}
                         </td>
-                        <td>{{ order.ws_code }}</td>
-                        <td>{{ order.order_delivered_at }}</td>
+                        <td>{{ order.order_collection_code }}</td>
+                        <td>{{ order.order_delivered_at|date:"d/m/Y G:i" }}</td>
                         <td>
-                            <form action="" method="get">
+                            <form name="status" action="{% url 'panel:change-order-status' order.id %}" method="get" onsubmit="makePost()">
                                 <select class="form-select" name="status" id="status">
-                                    <option value="0">ORDER PLACED</option>
-                                    <option value="1">ORDER ACCEPTED</option>
-                                    <option value="2">PREPARING ORDER</option>
-                                    <option value="3">ORDER PREPARED</option>
-                                    <option value="4">ORDER DELIVERED</option>
+                                    <option value="0" {% if order.status == 0 %}selected{% endif %}>ORDER PLACED</option>
+                                    <option value="1" {% if order.status == 1 %}selected{% endif %}>ORDER ACCEPTED</option>
+                                    <option value="2" {% if order.status == 2 %}selected{% endif %}>PREPARING ORDER</option>
+                                    <option value="3" {% if order.status == 3 %}selected{% endif %}>ORDER PREPARED</option>
+                                    <option value="4" {% if order.status == 4 %}selected{% endif %}>ORDER DELIVERED</option>
                                 </select>
+                                <button type="submit" class="btn btn-primary">Change</button>
                             </form>
                         </td>
-                        <td>{{ order.amount }}€</td>
+                        <td>{{ order.amount|floatformat:2 }}€</td>
                     <tr>
                 {% endfor %}
                 </tbody>

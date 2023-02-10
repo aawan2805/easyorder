@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block field_errors %}
+{% if form.errors %}
+    {% for field in form %}
+        {% for error in field.errors %}            
+            <div class="alert alert-danger">
+                {{ field.name }}        
+                <ul>
+                    <li>{{ error|escape }}</li>
+                </ul>
+            </div>
+        {% endfor %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+        <div class="alert alert-warning">
+            <strong>{{ error|escape }}</strong>
+        </div>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active" aria-current="page">Editar categoría</li>
+{% endblock %}
+
+{% block content %}
+<div>
+    <div class="col-12" id="add-new-branch">
+        <div class="form-group row p-t-20">
+            <div class="card card-body">
+                <form class="form-horizontal m-t-30" action="{% url 'panel:edit-category' uuid %}" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label><span class="help">Nombre</span></label>
+                        {{ form.name }}
+                        <small class="text-danger">{{ form.errors.name }}</small>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="help">Ícono</span></label>
+                        {{ form.icon }}
+                        <small class="text-danger">{{ form.errors.icon }}</small>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="help">Por defecto?</span></label>
+                        {{ form.default }}
+                        <small class="text-danger">{{ form.errors.default }}</small>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <div class="form-group mt-docker4 d-inline-block">
+                            <button type="submit" id="submit-branch-edit-form" class="btn btn-primary mb-1"><i  class="simple-icon-check"> Guardar</i></button>
+                            <div class="col-sm-12 text-center"></div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -89,7 +89,7 @@ class OrderView(CreateAPIView):
             for dish in dishes:
                 new_order.dishes.add(dish)
             new_order.save()
-            print("PUTA")
+
             headers = self.get_success_headers(serializer.data)
             rsp = ApiResponse(data={
                                     "msg": f'Order placed! Your tracking number is {new_order.order_collection_code}',
