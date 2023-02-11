@@ -39,6 +39,7 @@ class Category(models.Model):
     default = models.BooleanField(default=False)
     # active = models.BooleanField(default=True, null=False)
     priority = models.IntegerField(null=False, default=1)
+    active = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'category'

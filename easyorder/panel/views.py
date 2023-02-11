@@ -37,7 +37,7 @@ class Platos(LoginRequiredMixin, ListView):
     template_name = 'platos.html'
 
     def get_queryset(self):
-        qs = Dish.objects.filter(brand=self.request.user.profile.brand)
+        qs = Dish.objects.filter(brand=self.request.user.profile.brand, active=True)
         return qs
 
 
@@ -118,7 +118,8 @@ class DeleteDish(LoginRequiredMixin, DeleteView):
         # Check que el plato pertenece a éste dueño.
         if self.request.user.profile.brand == self.object.brand:
             dish_name = self.object.name
-            self.object.delete()
+            self.object.active = False
+            self.object.save()
 
             messages.success(request, f'Plato {dish_name} eliminado con éxito.')
         else:
@@ -155,7 +156,7 @@ class Categories(LoginRequiredMixin, ListView):
     template_name = 'categories.html'
 
     def get_queryset(self):
-        qs = Category.objects.filter(brand=self.request.user.profile.brand)
+        qs = Category.objects.filter(brand=self.request.user.profile.brand, active=True)
         return qs
 
 
@@ -215,3 +216,33 @@ class AddCategoryView(LoginRequiredMixin, CreateView):
         kwargs = super().get_form_kwargs()
         kwargs.update({'user': self.request.user})
         return kwargs
+
+
+class DeleteCategory(LoginRequiredMixin, DeleteView):
+    model = Category
+    pk_url_kwarg = 'category_id'
+    template_name = 'category_confirm_delete.html'
+    success_url = reverse_lazy('panel:categorias')
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Call the delete() method on the fetched object and then redirect to the
+        success URL.
+        """
+        self.object = self.get_object()
+
+        # Check que el plato pertenece a éste dueño.
+        if self.request.user.profile.brand == self.object.brand:
+            related_dishes = self.object.dishes.all()
+            if related_dishes:
+                related_dishes.update(active=False)
+
+            category_name = self.object.name
+            self.object.active = False
+            self.object.save()
+
+            messages.success(request, f'Categoría {category_name} eliminada con éxito. Se han eliminado {len(related_dishes)} platos asociados a ésta cregoría.')
+        else:
+            messages.success(request, f'No se pudo borrar la categoría {category_name}. Porfavor inténtelo más tarde.')
+
+        return redirect(self.get_success_url())

@@ -39,6 +39,7 @@ class AddDish(ModelForm):
         new_dish.ingredients = self.cleaned_data.pop('ingredients', '').split(',')
         # new_dish.tags = parse_tags(self.cleaned_data.pop('tags', False))
         new_dish.tags = self.cleaned_data.pop('tags', '').split(',')
+        new_dish.active = True
         new_dish.save()
 
         return new_dish

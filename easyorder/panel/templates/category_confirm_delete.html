@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="deck">Seguro que desea eliminar la categoría "{{ object.name }}"?</h2>
+<p>Además de la categoría, se eliminarán también todos los platos asociados a ésta.</p>
+
+<form class="wide" action="{% url 'panel:delete-category' object.uuid %}" method="post">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">Eliminar</button>
+</form>
+
+<a href="{% url 'panel:categorias' %}">
+    <button class="btn btn-success">Retroceder</button>
+</a>
+{% endblock %}

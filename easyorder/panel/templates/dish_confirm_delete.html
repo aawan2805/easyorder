@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2 class="deck">Seguro que desea eliminar "{{ object.name }}"?</h2>
+<h2 class="deck">Seguro que desea eliminar el plato "{{ object.name }}"?</h2>
 
 
 <form class="wide" action="{% url 'panel:delete-plato' object.uuid %}" method="post">
