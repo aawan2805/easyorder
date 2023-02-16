@@ -21,7 +21,7 @@ class DishView(ListAPIView):
         brand = get_object_or_404(Brand, uuid=brand_uuid)
         category = get_object_or_404(Category, uuid=category_uuid)
 
-        return Dish.objects.filter(brand=brand, category=category)
+        return Dish.objects.filter(brand=brand, category=category, active=True)
 
 
     # def get(self, request, *args, **kwargs):
@@ -42,7 +42,7 @@ class CategoryView(ListAPIView):
         brand = get_object_or_404(Brand, uuid=brand_uuid)
 
         categories = []
-        for category in Category.objects.filter(brand=brand):
+        for category in Category.objects.filter(brand=brand, active=True):
             categories.append({
                 "key": category.uuid,
                 "icon": "x",
@@ -68,7 +68,7 @@ class OrderView(CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
+        if serializer.is_valid(raise_exception=False):
             print(serializer.data)
             total_amount = 0.0
             all_dishes = [dish["dish_uuid"] for dish in request.data.get('dishes', [])]
@@ -101,3 +101,7 @@ class OrderView(CreateAPIView):
                               headers=headers
                              )
             return rsp.get_response()
+    
+        else:
+            print(serializer.errors)
+

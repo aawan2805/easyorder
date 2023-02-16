@@ -19,6 +19,7 @@ class LoginUser(LoginView):
     success_url = reverse_lazy('panel:platos')
 
     def get(self, request, *args, **kwargs):
+        print("OK")
         return super().get(self, request, *args, **kwargs)
  
     def post(self, request, *args, **kwargs):

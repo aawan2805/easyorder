@@ -10,6 +10,11 @@ services:
       - POSTGRES_USER=easyorder
       - POSTGRES_PASSWORD=easyorder
 
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
   web:
     build: ./easyorder
     command: python -u manage.py runserver 0.0.0.0:8000
@@ -26,3 +31,7 @@ services:
       - PYTHONUNBUFFERED=1
     depends_on:
       - db
+      - redis
+    links:
+      - db
+      - redis

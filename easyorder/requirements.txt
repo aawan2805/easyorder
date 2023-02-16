@@ -5,3 +5,5 @@ psycopg2
 pillow
 djangorestframework
 django-cors-headers
+channels
+channels-redis

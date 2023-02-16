@@ -20,7 +20,11 @@ class OrderDishes(serializers.Serializer):
 
 
 class PostNewOrder(serializers.Serializer):
-    dishes = serializers.ListField(child=OrderDishes())
+    dishes = serializers.ListField(child=
+        serializers.ListField(
+            child = OrderDishes()
+        )
+    )
     brand_uuid = serializers.UUIDField()
 
 # class listcategorybyuuid(serializers.ModelSerializer):

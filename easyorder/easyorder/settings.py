@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'api',
     'rest_framework',
     'corsheaders',
-    'django.contrib.humanize'
+    'django.contrib.humanize',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -82,7 +83,17 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'easyorder.wsgi.application'
+ASGI_APPLICATION = 'easyorder.asgi.application'
 
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('redis', 6379)],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
