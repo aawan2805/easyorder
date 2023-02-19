@@ -8,6 +8,11 @@ class PlatosSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = '__all__'
+
 class ListCategoryByUuid(serializers.Serializer):
     key = serializers.UUIDField()
     icon = serializers.CharField(max_length=200)
@@ -20,11 +25,7 @@ class OrderDishes(serializers.Serializer):
 
 
 class PostNewOrder(serializers.Serializer):
-    dishes = serializers.ListField(child=
-        serializers.ListField(
-            child = OrderDishes()
-        )
-    )
+    dishes = serializers.ListField(child=OrderDishes())
     brand_uuid = serializers.UUIDField()
 
 # class listcategorybyuuid(serializers.ModelSerializer):

@@ -1,4 +1,5 @@
-import base64
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 from django.views import View
@@ -135,8 +136,30 @@ class OrdersView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         qs = Order.objects.filter(brand=self.request.user.profile.brand).prefetch_related('dishes')
-        return qs
 
+        data = {
+            'orders': [],
+            'brand_uuid': self.request.user.profile.brand.uuid
+        }
+        for order in qs:
+            data['orders'].append({
+                'id': order.id,
+                'order_placed_at': order.order_placed_at,
+                'order_delivered_at': order.order_delivered_at,
+                'ws_code': order.ws_code,
+                'status': order.status,
+                'dishes': [dish.name for dish in order.dishes.all()],
+                'brand_id': order.brand_id,
+                'amount': order.amount,
+                'collection_code': order.order_collection_code,
+            })
+
+        return data
+
+    def get_context_data(self, **kwargs):
+        cd = super().get_context_data(**kwargs)
+        cd.update({"object_list": json.dumps(cd.get('object_list'), cls=DjangoJSONEncoder)})
+        return cd
 
 class ChangeOrderStatus(LoginRequiredMixin, View):
     form_class = ChangeOrderStatus

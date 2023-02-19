@@ -1,12 +1,21 @@
+import json
+import channels.layers
+from asgiref.sync import async_to_sync
+from django.core.serializers.json import DjangoJSONEncoder
+
 from django.utils import timezone
+from django.core import serializers as django_serializer
 from django.shortcuts import get_object_or_404
-from panel.models import *
 from rest_framework.generics import ListAPIView, CreateAPIView
 from api.serializers import PlatosSerializer, ListCategoryByUuid, PostNewOrder
 from panel.models import *
 from rest_framework import status
 from rest_framework.response import Response
+
 from api.helper import ApiResponse
+from panel.models import *
+
+from api.serializers import OrderSerializer
 
 
 class DishView(ListAPIView):
@@ -67,11 +76,11 @@ class OrderView(CreateAPIView):
     serializer_class = PostNewOrder
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        serializer = PostNewOrder(data=json.loads(request.data.get('body')))
         if serializer.is_valid(raise_exception=False):
-            print(serializer.data)
             total_amount = 0.0
-            all_dishes = [dish["dish_uuid"] for dish in request.data.get('dishes', [])]
+            all_dishes = [dish["dish_uuid"] for dish in serializer.data['dishes']]
+
             dishes = []
             for dish in all_dishes:
                 aux = get_object_or_404(Dish, uuid=dish)
@@ -79,7 +88,7 @@ class OrderView(CreateAPIView):
                 total_amount += aux.price
             new_order = Order(order_placed_at=timezone.now(),
                               order_delivered_at=None,
-                              brand=Brand.objects.get(uuid=request.data.get('brand_uuid')),
+                              brand=Brand.objects.get(uuid=serializer.data['brand_uuid']),
                               amount=total_amount)
             # Set ws code and collection code
             new_order.save()
@@ -100,6 +109,28 @@ class OrderView(CreateAPIView):
                               status=status.HTTP_201_CREATED,
                               headers=headers
                              )
+
+        
+            order_json = {
+                'id': new_order.id,
+                'order_placed_at': new_order.order_placed_at,
+                'order_delivered_at': new_order.order_delivered_at,
+                'ws_code': new_order.ws_code,
+                'status': new_order.status,
+                'dishes': [dish.name for dish in new_order.dishes.all()],
+                'brand_id': new_order.brand_id,
+                'amount': new_order.amount,
+                'collection_code': new_order.order_collection_code,
+            }
+            channel_layer = channels.layers.get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                f'orders_{new_order.brand.uuid}',
+                {
+                    'type': 'chat_message',
+                    'message': json.dumps(order_json, cls=DjangoJSONEncoder),
+                }
+            )
+
             return rsp.get_response()
     
         else:

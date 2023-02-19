@@ -28,46 +28,151 @@
                 No hay pedidos recientes.
             </div>
         {% else %}
-            <table class="table">
+            <table class="table" id="ordersTable">
                 <thead>
-                <tr>
-                    <th scope="col">Hora del pedido</th>
-                    <th scope="col">Platos</th>
-                    <th scope="col">Código</th>
-                    <th scope="col">Hora de entrega</th>
-                    <th scope="col">Estado</th>
-                    <th scope="col">Importe</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in object_list %}
                     <tr>
-                        <td>{{ order.order_placed_at|naturaltime  }}</td>
-                        <td>
-                        {% for dish in order.dishes.all %}
-                        <span class="badge text-bg-success">{{ dish.name }}</span>
-                        {% endfor %}
-                        </td>
-                        <td>{{ order.order_collection_code }}</td>
-                        <td>{{ order.order_delivered_at|date:"d/m/Y G:i" }}</td>
-                        <td>
-                            <form name="status" action="{% url 'panel:change-order-status' order.id %}" method="get" onsubmit="makePost()">
-                                <select class="form-select" name="status" id="status">
-                                    <option value="0" {% if order.status == 0 %}selected{% endif %}>ORDER PLACED</option>
-                                    <option value="1" {% if order.status == 1 %}selected{% endif %}>ORDER ACCEPTED</option>
-                                    <option value="2" {% if order.status == 2 %}selected{% endif %}>PREPARING ORDER</option>
-                                    <option value="3" {% if order.status == 3 %}selected{% endif %}>ORDER PREPARED</option>
-                                    <option value="4" {% if order.status == 4 %}selected{% endif %}>ORDER DELIVERED</option>
-                                </select>
-                                <button type="submit" class="btn btn-primary">Change</button>
-                            </form>
-                        </td>
-                        <td>{{ order.amount|floatformat:2 }}€</td>
-                    <tr>
-                {% endfor %}
-                </tbody>
+                        <th scope="col">Hora del pedido</th>
+                        <th scope="col">Platos</th>
+                        <th scope="col">Código</th>
+                        <th scope="col">Hora de entrega</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Importe</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
             </table>
         {% endif %}
           
     </div>
 {% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+    // Load the data in JS
+    var orders =  JSON.parse('{{ object_list|escapejs }}');
+    // Subscribe to WS
+    function connect() {
+        
+        let brand_uuid = orders.brand_uuid;
+        console.log(brand_uuid)
+        console.log(window.location.host)
+        chatSocket = new WebSocket("ws://" + window.location.host + "/orders/brand/" + brand_uuid );
+
+        chatSocket.onopen = function(e) {
+            console.log("Successfully connected to the WebSocket.");
+            chatSocket.send(JSON.stringify({
+                "message": "Conectado perra",
+            }));
+
+        }
+
+        chatSocket.onclose = function(e) {
+            console.log("WebSocket connection closed unexpectedly. Trying to reconnect in 2s...");
+            // setTimeout(function() {
+            //     console.log("Reconnecting...");
+            //     connect();
+            // }, 2000);
+        };
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const order = JSON.parse(data.message)
+            orders.orders.unshift(order)
+            console.log(orders.orders)
+            makeTable();
+        };
+
+        chatSocket.onerror = function(err) {
+            console.log("WebSocket encountered an error: " + err.message);
+            console.log("Closing the socket.");
+            chatSocket.close();
+        }
+    }
+
+
+
+
+    function makeTable() {
+        console.log("making table...", orders.orders.length)
+
+        const ordersTableBody = document.querySelector('#ordersTable tbody');
+        orders.orders.forEach(order => {
+            const row = document.createElement('tr');
+
+            const orderIdCell = document.createElement('td');
+            orderIdCell.textContent = order.order_placed_at;
+            row.appendChild(orderIdCell);
+
+            const orderPlacedAtCell = document.createElement('td');
+            order.dishes.forEach(dish => {
+                span = document.createElement('span');
+                span.setAttribute("class", "badge text-bg-success")
+                span.innerHTML = dish
+                orderPlacedAtCell.appendChild(span)
+            })
+            row.appendChild(orderPlacedAtCell);
+
+            const orderDeliveredAtCell = document.createElement('td');
+            orderDeliveredAtCell.textContent = order.collection_code;
+            row.appendChild(orderDeliveredAtCell);
+
+            const wsCodeCell = document.createElement('td');
+            wsCodeCell.textContent = order.order_delivered_at;
+            row.appendChild(wsCodeCell);
+
+
+            const statusCell = document.createElement('td');
+            // Create form element
+            const form = document.createElement('form');
+            form.name = 'status';
+            form.method = 'get';
+
+            // Create select element
+            const select = document.createElement('select');
+            select.className = 'form-select';
+            select.name = 'status';
+            select.id = 'status';
+
+            // Create option elements and add them to select element
+            const options = [
+                {value: '0', text: 'ORDER PLACED'},
+                {value: '1', text: 'ORDER ACCEPTED'},
+                {value: '2', text: 'PREPARING ORDER'},
+                {value: '3', text: 'ORDER PREPARED'},
+                {value: '4', text: 'ORDER DELIVERED'}
+            ];
+            options.forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option.value;
+                opt.textContent = option.text;
+                select.appendChild(opt);
+            });
+
+            // Create submit button
+            const button = document.createElement('button');
+            button.type = 'submit';
+            button.className = 'btn btn-primary';
+            button.textContent = 'Change';
+
+            // Add select element and button to form element
+            form.appendChild(select);
+            form.appendChild(button);
+
+            // Add form element to the DOM
+            statusCell.append(form)
+            row.appendChild(statusCell);
+
+
+            const brandIdCell = document.createElement('td');
+            brandIdCell.textContent = order.amount.toFixed(2) + "€";
+            row.appendChild(brandIdCell);
+
+            ordersTableBody.appendChild(row);
+        });
+    }
+    connect();
+    makeTable();
+
+</script>
+{% endblock %}
+
