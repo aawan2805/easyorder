@@ -135,7 +135,7 @@ class OrdersView(LoginRequiredMixin, ListView):
     template_name = 'orders.html'
 
     def get_queryset(self):
-        qs = Order.objects.filter(brand=self.request.user.profile.brand).prefetch_related('dishes')
+        qs = Order.objects.filter(brand=self.request.user.profile.brand).prefetch_related('dishes').order_by('-order_placed_at')
 
         data = {
             'orders': [],
@@ -152,6 +152,7 @@ class OrdersView(LoginRequiredMixin, ListView):
                 'brand_id': order.brand_id,
                 'amount': order.amount,
                 'collection_code': order.order_collection_code,
+                'selected': False
             })
 
         return data

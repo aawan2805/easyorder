@@ -121,6 +121,7 @@ class OrderView(CreateAPIView):
                 'brand_id': new_order.brand_id,
                 'amount': new_order.amount,
                 'collection_code': new_order.order_collection_code,
+                'selected': False
             }
             channel_layer = channels.layers.get_channel_layer()
             async_to_sync(channel_layer.group_send)(
