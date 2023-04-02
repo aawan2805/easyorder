@@ -162,6 +162,7 @@ class OrdersView(LoginRequiredMixin, ListView):
         cd.update({"object_list": json.dumps(cd.get('object_list'), cls=DjangoJSONEncoder)})
         return cd
 
+
 class ChangeOrderStatus(LoginRequiredMixin, View):
     form_class = ChangeOrderStatus
     success_url = reverse_lazy('panel:orders')
@@ -212,7 +213,7 @@ class EditCategory(LoginRequiredMixin, UpdateView):
 
 
 class AddCategoryView(LoginRequiredMixin, CreateView):
-    """This class is to add a branch."""
+    """This class is to add a category."""
     template_name = 'add-category.html' 
     success_url = reverse_lazy('panel:categorias')
     form_class = AddCategoryFrom
@@ -271,3 +272,48 @@ class DeleteCategory(LoginRequiredMixin, DeleteView):
             messages.success(request, f'No se pudo borrar la categoría {category_name}. Porfavor inténtelo más tarde.')
 
         return redirect(self.get_success_url())
+
+
+class RegisterView(CreateView):
+    """This class is to add a new branch."""
+    template_name = 'registration/register.html' 
+    success_url = reverse_lazy('panel:login')
+    form_class = RegistrationForm
+    model = Register
+    object = None
+    http_method_names = ['get', 'post']
+    failed_redirect = reverse_lazy('panel:register-new-brand')
+    pk_url_kwarg = 'register_token'
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class
+        uuid = kwargs['register_token']
+        return render(request, self.template_name, {'form': form, 'uuid': uuid})
+
+    def post(self, request, *args, **kwargs):
+
+        form = self.get_form_class()
+        data_form = form(self.request.POST)
+        if data_form.is_valid():
+            # Verify if the token is valid.
+            tk = Register.objects.filter(token=self.kwargs.get('register_token', None))
+            if not tk or not tk[0].active or (tk[0].token != self.kwargs.get('register_token')):
+                messages.warning(self.request, 'Brand is already registered. Please log in.')
+                return redirect(self.success_url)
+
+            created_user = data_form.save()
+            if created_user:
+                tk[0].active = False
+                tk[0].save()
+                messages.success(self.request, f'Usuario {data_form.cleaned_data.get("username")} creado.') 
+            else:
+                messages.error(self.request, f'No se ha podido crear el usuario. Inténtalo más tarde.') 
+                return render(self.request, self.template_name, {'form': data_form, 'uuid': uuid})
+
+        if not data_form.is_valid():
+            print("VALID")
+            uuid = self.kwargs['register_token']
+            messages.error(self.request, 'Por favor corrige los errores.')
+            return render(self.request, self.template_name, {'form': data_form, 'uuid': uuid})
+
+        return redirect(self.success_url) 

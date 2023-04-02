@@ -3,6 +3,7 @@ from panel.models import *
 from django.forms import ModelForm, Form
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.models import User
 
 
 class AddDish(ModelForm):
@@ -153,3 +154,47 @@ class AddCategoryFrom(ModelForm):
         new_dish.brand = self.user.profile.brand
         new_dish.save()
         return new_dish
+
+
+class RegistrationForm(ModelForm):
+    name = forms.CharField(max_length=50, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'id_name'}))
+    phone_number = forms.CharField(max_length=20, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'phone_number'}))
+    main_address = forms.CharField(max_length=100, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'main_address'}))
+
+    def save(self, commit=False):
+        print("PUTAAAAA")
+        try:
+            # Add the user
+            # Add brand
+            # Add profile
+            # Associate all of them
+            # Invalidate the token
+            new_user = User.objects.create(username=self.cleaned_data.get('username'),
+                            first_name=self.cleaned_data.get('first_name'),
+                            last_name=self.cleaned_data.get('last_name'))
+            new_user.set_password(self.cleaned_data.get('password'))
+            new_user.save()
+
+            new_brand = Brand.objects.create(name=self.cleaned_data.get('name'),
+                                phone_number=self.cleaned_data.get('phone_number'),
+                                main_address=self.cleaned_data.get('main_address'),
+                                email=self.cleaned_data.get('email'))
+            new_brand.save()
+
+            Profile.objects.create(user=new_user, 
+                                    brand=new_brand, 
+                                    address=self.cleaned_data.get('address')).save()
+            return True
+        except:
+            return False
+
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email', 'password'] 
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control', 'id': 'inputUsername'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'id': 'inputfirstname'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'id': 'inputlastname'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'id': 'inputEmail'}),
+            'password': forms.PasswordInput(attrs={'class': 'form-control', 'id': 'inputPassword'}),
+        }

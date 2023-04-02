@@ -110,5 +110,14 @@ class Order(models.Model):
     def set_order_collection_code(self):
         self.order_collection_code = f'ES{self.id+1}'
 
+
+class Register(models.Model):
+    token = models.UUIDField(default=uuid.uuid4)
+    email = models.EmailField()
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('token', 'email',)
+
 # class Review(models.Model):
 #     pass

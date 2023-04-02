@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Easyorder</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'font/iconsmind-s/css/iconsminds.css'  %}"  />
+    <link rel="stylesheet" href="{% static 'css/vendor/bootstrap.min.css'  %}"  />
+    <link rel="stylesheet" href="{% static 'css/main.css' %}"  />
+    <link rel="stylesheet" href="{% static 'css/dore.light.greenlime.min.css' %}"  />
+</head>
+<body class="background no-footer">
+    <div class="container">
+        {% if form.errors %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Fix the error below and try again.</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+          </div>    
+        {% endif %}
+    </div>
+    
+    <div class="container">
+        <form method="POST" action="{% url 'panel:register-new-brand' uuid %}">
+            {% csrf_token  %}
+            <h1 class="display-4">Login details</h1>
+            <div class="form-group">
+              <label for="inputUsername">Username</label>
+              {{ form.username }}
+              {% for error in form.username.errors %}
+                <span class="text-danger">{{ error }}</span>
+              {% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="inputPassword">Password</label>
+                {{ form.password }}
+                {% for error in form.password.errors %}
+                <span class="text-danger">{{ error }}</span>
+              {% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="inputEmail">Email</label>
+                {{ form.email }}
+                {% for error in form.email.errors %}
+                <span class="text-danger">{{ error }}</span>
+              {% endfor %}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                <label for="inputfirstname">Firstname</label>
+                {{ form.first_name }}
+                {% for error in form.first_name.errors %}
+                <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="inputlastname">Lastname</label>
+                    {{ form.last_name }}
+                    {% for error in form.last_name.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <h1 class="display-4">Details of the chain</h1>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="name">Name</label>
+                  {{ form.name }}
+                  {% for error in form.name.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                  {% endfor %}
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="phone_number">Phone number</label>
+                    {{ form.phone_number }}
+                    {% for error in form.phone_number.errors %}
+                      <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="main_address">Address</label>
+                  {{ form.main_address }}
+                  {% for error in form.main_address.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                  {% endfor %}
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success w-100">Sign up</button>
+        </form>
+    </div>
+      
+
+</body>
+</html>
