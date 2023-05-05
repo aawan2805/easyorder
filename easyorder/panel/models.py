@@ -23,6 +23,7 @@ class Brand(models.Model):
     phone_number = models.CharField(max_length=20)
     main_address = models.CharField(max_length=100)
     email = models.CharField(max_length=30)
+    active = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'brand'

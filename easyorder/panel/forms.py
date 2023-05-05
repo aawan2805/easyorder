@@ -43,6 +43,10 @@ class AddDish(ModelForm):
         new_dish.active = True
         new_dish.save()
 
+        # Mark brand as active.
+        brand.active = True
+        brand.save()
+
         return new_dish
 
 
@@ -93,7 +97,7 @@ class EditDishForm(ModelForm):
         return parent_dish
 
 
-class ChangeOrderStatus(ModelForm):
+class ChangeOrderStatusForm(ModelForm):
     class Meta:
         model = Order
         # exclude = ('dishes', 
@@ -103,7 +107,7 @@ class ChangeOrderStatus(ModelForm):
         #            'brand', 
         #            'amount', 
         #            'order_collection_code',)
-        fields = ['status']
+        fields = ['status', 'id']
 
 
 class EditCategoryForm(ModelForm):

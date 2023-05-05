@@ -2,6 +2,8 @@ import json
 import channels.layers
 from asgiref.sync import async_to_sync
 from django.core.serializers.json import DjangoJSONEncoder
+from django.http import HttpResponseNotFound
+from django.http import JsonResponse
 
 from django.utils import timezone
 from django.core import serializers as django_serializer
@@ -15,7 +17,7 @@ from rest_framework.response import Response
 from api.helper import ApiResponse
 from panel.models import *
 
-from api.serializers import OrderSerializer
+from api.serializers import OrderSerializer, SummaryOrderStatusSerializer
 
 
 class DishView(ListAPIView):
@@ -137,3 +139,47 @@ class OrderView(CreateAPIView):
         else:
             print(serializer.errors)
 
+class OrderStatus(ListAPIView):
+    http_method_names = ['get'] 
+    serializer_class = None
+    model = Order
+    lookup_field = 'collection_code'
+
+    def get(self, request, *args, **kwargs):
+        collection_code = self.kwargs.get('collection_code', None)
+        if collection_code:
+            order = get_object_or_404(Order, order_collection_code=collection_code)
+            if order.status == 4:
+                return JsonResponse({'remove_token': True}, status=200)
+            return JsonResponse({'remove_token': False}, status=200)
+
+        return HttpResponseNotFound()
+
+
+class QRStatus(ListAPIView):
+    http_method_names = ['get'] 
+    serializer_class = None
+    model = Brand
+    lookup_field = 'brand_uuid'
+
+    def get(self, request, *args, **kwargs):
+        brand_uuid = self.kwargs.get('brand_uuid', None)
+        if brand_uuid:
+            brand = get_object_or_404(Brand, uuid=brand_uuid)
+            if brand.active:
+                return JsonResponse({'qr_ok': True}, status=200)
+            return JsonResponse({'qr_ok': False}, status=200)
+
+        return HttpResponseNotFound()
+
+
+class SummaryOrderStatus(ListAPIView):
+    http_method_names = ['get'] 
+    serializer_class = SummaryOrderStatusSerializer
+    model = Order
+    lookup_field = 'collection_code'
+
+    def get_queryset(self):
+        collection_code = self.kwargs.get('collection_code', None)
+        order = Order.objects.get(order_collection_code=collection_code)
+        return order

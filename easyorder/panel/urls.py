@@ -19,5 +19,5 @@ urlpatterns = [
     path('delete-category/<uuid:category_id>', DeleteCategory.as_view(), name='delete-category'),
 
     path('orders', OrdersView.as_view(), name='orders'),
-    path('change-status/<int:order>', ChangeOrderStatus.as_view(), name='change-order-status'),
+    path('change-order-status', ChangeOrderStatus.as_view(), name='change-order-status'),
 ]

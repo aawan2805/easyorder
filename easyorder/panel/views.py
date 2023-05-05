@@ -164,10 +164,11 @@ class OrdersView(LoginRequiredMixin, ListView):
 
 
 class ChangeOrderStatus(LoginRequiredMixin, View):
-    form_class = ChangeOrderStatus
+    form_class = ChangeOrderStatusForm
     success_url = reverse_lazy('panel:orders')
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
+        print("GOTCHA")
         order = get_object_or_404(Order, id=kwargs.get('order', -1))
         form_data = self.form_class(data=request.GET, instance=order)
 

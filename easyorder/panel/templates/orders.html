@@ -27,6 +27,7 @@
             <div class="alert alert-primary" role="alert">
                 No hay pedidos recientes.
             </div>
+            <input id="csrf_token" type="text" value="{{ csrf_token }}"/>
         {% else %}
             <table class="table" id="ordersTable">
                 <thead>
@@ -50,6 +51,7 @@
 <script type="text/javascript">
     // Load the data in JS
     var globalOrders =  JSON.parse('{{ object_list|escapejs }}');
+    var csrf = document.getElementById('csrf_token');
     // Subscribe to WS
     function connect() {
         
@@ -103,6 +105,11 @@
         })
     }
 
+    changeOrderStatus = (form) => {
+        console.log(form)
+        form.submit()
+    }
+
 
     function makeTable(orders) {
         console.log("making table...", orders.orders.length)
@@ -138,8 +145,9 @@
             const statusCell = document.createElement('td');
             // Create form element
             const form = document.createElement('form');
-            form.name = 'status';
-            form.method = 'get';
+            const current_url = window.location.href;
+            form.method = 'post';
+            form.action = 'http://localhost:8000/change-order-status'
 
             // Create select element
             const select = document.createElement('select');
@@ -172,14 +180,28 @@
             button.className = 'btn btn-primary';
             button.textContent = 'Change';
 
+            // Append csrf 
+            form.append(csrf)
+
+            // Add the hidden input containing order id
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "id"
+            input.value = order.id;
+            form.appendChild(input); // put it into the DOM
+
             // Add select element and button to form element
             form.appendChild(select);
-            form.appendChild(button);
+            // form.appendChild(button);
 
             // Add form element to the DOM
             statusCell.append(form)
             row.appendChild(statusCell);
 
+            // Attach the onhcnage submit form
+            form.addEventListener("change", function(){
+                changeOrderStatus(form);
+            })
 
             const brandIdCell = document.createElement('td');
             brandIdCell.textContent = order.amount.toFixed(2) + "€";
