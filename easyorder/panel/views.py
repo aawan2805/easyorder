@@ -1,15 +1,18 @@
-import json
+import json, os
+from typing import Any
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.views import LoginView
+from django.db import models
 from django.urls import reverse_lazy
 from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import CreateView, ListView, UpdateView, DeleteView
+from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth import authenticate, get_user_model
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 
 # Import the forms
 from panel.forms import *
@@ -152,7 +155,9 @@ class OrdersView(LoginRequiredMixin, ListView):
                 'brand_id': order.brand_id,
                 'amount': order.amount,
                 'collection_code': order.order_collection_code,
-                'selected': False
+                'selected': False,
+                'error': False,
+                'green': False,
             })
 
         return data
@@ -166,16 +171,60 @@ class OrdersView(LoginRequiredMixin, ListView):
 class ChangeOrderStatus(LoginRequiredMixin, View):
     form_class = ChangeOrderStatusForm
     success_url = reverse_lazy('panel:orders')
+    template_name = 'orders.html'
+    allowed_methods = ["post"]
+
+    @csrf_exempt
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        print("GOTCHA")
-        order = get_object_or_404(Order, id=kwargs.get('order', -1))
-        form_data = self.form_class(data=request.GET, instance=order)
-
+        form_data = self.form_class(data=request.POST)
+        request_order = None
         if form_data.is_valid():
-            form_data.save()
-        
-        return redirect(self.success_url)
+            try:
+                request_order = get_object_or_404(Order, id=self.kwargs.get('order_id'))
+                request_order.status = form_data.cleaned_data.get('status')
+                request_order.save()
+            except:
+                messages.error(request, 'An error occured changing status. Try again.')
+                return redirect(self.success_url)
+
+
+        qs = Order.objects.filter(brand=self.request.user.profile.brand).prefetch_related('dishes').order_by('-order_placed_at')
+        data = {
+            'orders': [],
+            'brand_uuid': self.request.user.profile.brand.uuid
+        }            
+        for order in qs:
+            order_dict = {
+                'id': order.id,
+                'order_placed_at': order.order_placed_at,
+                'order_delivered_at': order.order_delivered_at,
+                'ws_code': order.ws_code,
+                'status': order.status,
+                'dishes': [dish.name for dish in order.dishes.all()],
+                'brand_id': order.brand_id,
+                'amount': order.amount,
+                'collection_code': order.order_collection_code,
+                'selected': False,
+                'error': False,
+                'green': False,
+            }
+            if request_order is not None:
+                if order.id == request_order.id:
+                    order_dict.update({'green': True})
+            else:
+                order_dict.update({'selected': True})
+
+            data['orders'].append(order_dict)
+        return render(request, self.template_name, {"object_list": json.dumps(data, cls=DjangoJSONEncoder)})
+
+    # def get_contextt_data(self, **kwargs):
+    #     cd = super().get_context_data(**kwargs)
+    #     cd.update({"object_list": json.dumps(cd.get('object_list'), cls=DjangoJSONEncoder)})
+    #     return cd
+
 
 
 class Categories(LoginRequiredMixin, ListView):
@@ -312,9 +361,19 @@ class RegisterView(CreateView):
                 return render(self.request, self.template_name, {'form': data_form, 'uuid': uuid})
 
         if not data_form.is_valid():
-            print("VALID")
             uuid = self.kwargs['register_token']
             messages.error(self.request, 'Por favor corrige los errores.')
             return render(self.request, self.template_name, {'form': data_form, 'uuid': uuid})
 
         return redirect(self.success_url) 
+
+
+class QRBrand(LoginRequiredMixin, View):
+    allowed_methods = ["get"]
+    template_name = 'qr.html'
+
+    def get(self, request, *args, **kwargs):
+        path_to_save_qr = os.path.join(settings.MEDIA_URL, 'brands')
+        return render(request, self.template_name, {
+            'img': path_to_save_qr + f'/qr_{request.user.profile.brand.uuid}.png'
+        })

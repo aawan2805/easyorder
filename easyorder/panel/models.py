@@ -6,9 +6,6 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils.crypto import get_random_string
-# class User(AbstractUser): # It is called panel_user in the database.
-#     address = models.CharField(max_length=100, null=True, default='', blank=True)
-#     brand = models.OneToOneField('Brand', on_delete=models.CASCADE, null=True, blank=True)
 
 
 class Profile(models.Model):
@@ -17,6 +14,10 @@ class Profile(models.Model):
     address = models.CharField(max_length=100, null=True, default='', blank=True)
 
 
+def qr_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return 'brand/qr_{0}.png'.format(str(instance.uuid))
+
 class Brand(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True)
     name = models.CharField(max_length=50)
@@ -24,12 +25,16 @@ class Brand(models.Model):
     main_address = models.CharField(max_length=100)
     email = models.CharField(max_length=30)
     active = models.BooleanField(default=False)
+    qr = models.ImageField(upload_to=qr_directory_path, blank=True, null=True)   
 
     class Meta:
         db_table = 'brand'
 
     def __repr__(self):
         return "{} {}".format(self.__class__.__name__, self.id)
+
+    def save_qr_code(self):
+        pass
 
 
 class Category(models.Model):

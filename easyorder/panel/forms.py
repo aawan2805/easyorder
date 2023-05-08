@@ -4,7 +4,8 @@ from django.forms import ModelForm, Form
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
-
+import qrcode
+import os
 
 class AddDish(ModelForm):
     def __init__(self, user, *args, **kwargs):
@@ -107,7 +108,7 @@ class ChangeOrderStatusForm(ModelForm):
         #            'brand', 
         #            'amount', 
         #            'order_collection_code',)
-        fields = ['status', 'id']
+        fields = ['status']
 
 
 class EditCategoryForm(ModelForm):
@@ -166,7 +167,6 @@ class RegistrationForm(ModelForm):
     main_address = forms.CharField(max_length=100, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'main_address'}))
 
     def save(self, commit=False):
-        print("PUTAAAAA")
         try:
             # Add the user
             # Add brand
@@ -179,11 +179,19 @@ class RegistrationForm(ModelForm):
             new_user.set_password(self.cleaned_data.get('password'))
             new_user.save()
 
+            # Generate the QR code
             new_brand = Brand.objects.create(name=self.cleaned_data.get('name'),
                                 phone_number=self.cleaned_data.get('phone_number'),
                                 main_address=self.cleaned_data.get('main_address'),
                                 email=self.cleaned_data.get('email'))
             new_brand.save()
+
+            try:
+                qr_image = qrcode.make(new_brand.uuid)
+                path_to_save_qr = os.path.join(settings.MEDIA_ROOT, 'brands')
+                qr_image.save(path_to_save_qr + f'/qr_{new_brand.uuid}.png')
+            except:
+                print("Could not save QR image.")
 
             Profile.objects.create(user=new_user, 
                                     brand=new_brand, 

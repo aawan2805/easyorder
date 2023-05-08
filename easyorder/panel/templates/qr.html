@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block messages %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+        {% if message.tags == 'success' %}
+            <div class="alert alert-success" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+        {% if message.tags == 'error' %}
+            <div class="alert alert-error" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}
+
+
+{% block content %}
+    <div class="row mt-2">
+        <img src="{{ img }}" alt="QR" height="50%">
+    </div>
+{% endblock %}

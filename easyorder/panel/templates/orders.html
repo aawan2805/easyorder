@@ -11,7 +11,7 @@
             </div>
         {% endif %}
         {% if message.tags == 'error' %}
-            <div class="alert alert-error" role="alert">
+            <div class="alert alert-danger" role="alert">
                 {{ message }}
             </div>
         {% endif %}
@@ -23,11 +23,11 @@
 
 {% block content %}
     <div class="row mt-2">
+        {% csrf_token %}
         {% if not object_list %}
             <div class="alert alert-primary" role="alert">
                 No hay pedidos recientes.
             </div>
-            <input id="csrf_token" type="text" value="{{ csrf_token }}"/>
         {% else %}
             <table class="table" id="ordersTable">
                 <thead>
@@ -51,7 +51,7 @@
 <script type="text/javascript">
     // Load the data in JS
     var globalOrders =  JSON.parse('{{ object_list|escapejs }}');
-    var csrf = document.getElementById('csrf_token');
+    const csrf = document.getElementById('csrf_token');
     // Subscribe to WS
     function connect() {
         
@@ -112,13 +112,18 @@
 
 
     function makeTable(orders) {
-        console.log("making table...", orders.orders.length)
-
         const ordersTableBody = document.querySelector('#ordersTable tbody');
         ordersTableBody.innerHTML = "";
 
         orders.orders.forEach(order => {
             const row = document.createElement('tr');
+            if(order.green === true){
+                row.setAttribute("class", "bg-success text-white")
+            } else if(order.error === true) {
+                row.setAttribute("class", "bg-danger text-white")
+            } else if(order.selected === true) {
+                row.setAttribute("class", "bg-info text-white")
+            }
 
             const orderIdCell = document.createElement('td');
             orderIdCell.textContent = order.order_placed_at;
@@ -147,7 +152,7 @@
             const form = document.createElement('form');
             const current_url = window.location.href;
             form.method = 'post';
-            form.action = 'http://localhost:8000/change-order-status'
+            form.action = `http://localhost:8000/change-order-status/${order.id}`
 
             // Create select element
             const select = document.createElement('select');
@@ -181,14 +186,14 @@
             button.textContent = 'Change';
 
             // Append csrf 
-            form.append(csrf)
+            let x = '{% csrf_token %}';
 
             // Add the hidden input containing order id
             const input = document.createElement("input");
             input.type = "hidden";
             input.name = "id"
             input.value = order.id;
-            form.appendChild(input); // put it into the DOM
+            // form.appendChild(input); // put it into the DOM
 
             // Add select element and button to form element
             form.appendChild(select);
@@ -206,10 +211,6 @@
             const brandIdCell = document.createElement('td');
             brandIdCell.textContent = order.amount.toFixed(2) + "€";
             row.appendChild(brandIdCell);
-
-            if(order.selected === true){
-                row.setAttribute("class", "bg-info text-white")
-            }
 
             ordersTableBody.appendChild(row);
 
