@@ -173,6 +173,9 @@
                 opt.value = option.value;
                 opt.textContent = option.text;
                 select.appendChild(opt);
+                if(option.value == order.status) {
+                    option.selected = true;
+                }
             });
 
             row.onmouseover = function (e) {
