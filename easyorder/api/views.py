@@ -182,4 +182,5 @@ class SummaryOrderStatus(ListAPIView):
     def get_queryset(self):
         collection_code = self.kwargs.get('collection_code', None)
         order = Order.objects.get(order_collection_code=collection_code)
+        print("ORDER:", order)
         return order

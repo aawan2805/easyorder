@@ -162,19 +162,19 @@
 
             // Create option elements and add them to select element
             const options = [
-                {value: '0', text: 'ORDER PLACED'},
-                {value: '1', text: 'ORDER ACCEPTED'},
-                {value: '2', text: 'PREPARING ORDER'},
-                {value: '3', text: 'ORDER PREPARED'},
-                {value: '4', text: 'ORDER DELIVERED'}
+                {value: 0, text: 'ORDER PLACED'},
+                {value: 1, text: 'ORDER ACCEPTED'},
+                {value: 2, text: 'PREPARING ORDER'},
+                {value: 3, text: 'ORDER PREPARED'},
+                {value: 4, text: 'ORDER DELIVERED'}
             ];
             options.forEach(option => {
                 const opt = document.createElement('option');
                 opt.value = option.value;
                 opt.textContent = option.text;
                 select.appendChild(opt);
-                if(option.value == order.status) {
-                    option.selected = true;
+                if(option.value === order.status) {
+                    opt.selected = true;
                 }
             });
 

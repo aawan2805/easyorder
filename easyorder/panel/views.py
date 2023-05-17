@@ -1,4 +1,6 @@
 import json, os
+import channels.layers
+from asgiref.sync import async_to_sync
 from typing import Any
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.views import LoginView
@@ -188,6 +190,7 @@ class ChangeOrderStatus(LoginRequiredMixin, View):
                 request_order.save()
             except:
                 messages.error(request, 'An error occured changing status. Try again.')
+                https_url = request.build_absolute_uri(reverse('my_url_name', scheme='https'))
                 return redirect(self.success_url)
 
 
@@ -214,6 +217,16 @@ class ChangeOrderStatus(LoginRequiredMixin, View):
             if request_order is not None:
                 if order.id == request_order.id:
                     order_dict.update({'green': True})
+                    channel_layer = channels.layers.get_channel_layer()
+                    async_to_sync(channel_layer.group_send)(
+                        f'{request_order.order_collection_code}',
+                        {
+                            'type': 'chat_message',
+                            'status': f'{request_order.status}',
+                            'order_id': f'{request_order.id}'
+                        }
+                    )
+
             else:
                 order_dict.update({'selected': True})
 

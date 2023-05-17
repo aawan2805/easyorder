@@ -28,6 +28,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*', '192.168.1.138', '0.0.0.0', 'localhost', '127.0.0.1']
 
+# SSL settings
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 # Application definition
 
@@ -44,6 +50,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'django.contrib.humanize',
     'channels',
+    'sslserver'
 ]
 
 MIDDLEWARE = [
@@ -59,6 +66,9 @@ MIDDLEWARE = [
     # My custom middleware to handle the cookies issue.
     # 'api.middleware.BrandCookieMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = ["*", "0.0.0.0"]
+CORS_ORIGIN_ALLOW_ALL  = True
 
 ROOT_URLCONF = 'easyorder.urls'
 
@@ -163,9 +173,3 @@ LOGIN_REDIRECT_URL = '/platos'
 MEDIA_ROOT =  os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://192.168.1.138:3000',
-    'http://192.168.1.138:8000'
-]
