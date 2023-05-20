@@ -68,7 +68,7 @@ class Dish(models.Model):
     description = models.CharField(max_length=150)
     price = models.FloatField()
     category = models.ForeignKey(Category, models.DO_NOTHING, related_name='dishes')
-    ingredients = models.CharField(max_length=100, default="", blank=True)
+    ingredients = models.JSONField(default=list, blank=True, null=True)
     brand = models.ForeignKey(Brand, models.DO_NOTHING, related_name='dishes')
     photo = models.ImageField(upload_to=dishes_directory_path, blank=True, null=True)
     tags = models.CharField(max_length=100, default="", blank=True) # Para advertencias (alergicos, etc...)
@@ -101,7 +101,7 @@ ORDER_CHOICES = (
     (ORDER_DELIVERED, 4),
 )
 class Order(models.Model):
-    dishes = models.ManyToManyField(Dish, related_name='dishes')
+    dishes = models.ManyToManyField(Dish, through='AdditionalOrder', related_name='orders')
     order_placed_at = models.DateTimeField(blank=False, null=False)
     order_delivered_at = models.DateTimeField(blank=True, null=True)
     ws_code = models.CharField(max_length=50, unique=True)
@@ -115,6 +115,17 @@ class Order(models.Model):
 
     def set_order_collection_code(self):
         self.order_collection_code = f'ES{self.id+1}'
+
+
+class AdditionalOrder(models.Model):
+    order = models.ForeignKey(Order, null=False, blank=False, db_column="order", on_delete=models.CASCADE, related_name="quantitats")
+    dish = models.ForeignKey(Dish, null=False, blank=False, db_column="dish", on_delete=models.CASCADE, related_name="quantitats")
+    quantity = models.IntegerField(null=False, blank=False, default=1)
+    exclude_ingredients = models.JSONField(max_length=200, null=True, blank=True, default=list)
+
+    class Meta:
+        db_table = "additional_order"
+        unique_together = ('order', 'dish')
 
 
 class Register(models.Model):

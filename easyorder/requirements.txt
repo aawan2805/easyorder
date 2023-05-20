@@ -1,11 +1,11 @@
-django
+django==3.2.19
 virtualenv
 python-dotenv
 psycopg2
 pillow
 djangorestframework
 django-cors-headers
-channels
+channels==3.0.4
 channels-redis
 qrcode
 django-sslserver

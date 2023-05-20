@@ -58,7 +58,7 @@
         let brand_uuid = globalOrders.brand_uuid;
         console.log(brand_uuid)
         console.log(window.location.host)
-        chatSocket = new WebSocket("ws://" + window.location.host + "/orders/brand/" + brand_uuid );
+        chatSocket = new WebSocket("wss://" + window.location.host + "/orders/brand/" + brand_uuid );
 
         chatSocket.onopen = function(e) {
             console.log("Successfully connected to the WebSocket.");
@@ -152,7 +152,7 @@
             const form = document.createElement('form');
             const current_url = window.location.href;
             form.method = 'post';
-            form.action = `http://localhost:8000/change-order-status/${order.id}`
+            form.action = `https://${window.location.host}/change-order-status/${order.id}`
 
             // Create select element
             const select = document.createElement('select');

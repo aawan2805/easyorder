@@ -63,9 +63,10 @@ class CollectionCodeConsumer(WebsocketConsumer):
     def connect(self):
         self.collection_code = self.scope['url_route']['kwargs']['collection_code']
         self.room_group_name = f'{self.collection_code}'
-        self.order = Order.objects.filter(collection_code=self.collection_code)
+        self.order = Order.objects.filter(order_collection_code=self.collection_code)
 
         if self.order:
+            print("YES COLLECTION CODE")
             # connection has to be accepted
             self.accept()
 

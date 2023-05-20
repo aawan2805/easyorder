@@ -66,33 +66,35 @@ class EditDishForm(ModelForm):
         self.fields['new_photo'].widget.attrs['class'] = 'custom-file-input'
         self.fields['new_photo'].widget.attrs['id'] = 'image'
 
-        self.fields['ingredients'].initial = ",".join(self.instance.ingredients)
+        self.fields['ingredients2'].initial = ", ".join(self.instance.ingredients)
 
         self.fields['tags'].initial = ",".join(self.instance.tags)
 
     current_photo = forms.CharField(required=False)
     new_photo = forms.ImageField(required=False)
+    ingredients2 = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'ingredients', 'data-role': 'tagsinput'}))
 
     class Meta:
         model = Dish
-        fields = ['name', 'description', 'price', 'active', 'ingredients', 'tags', 'category', 'new_photo']
+        fields = ['name', 'description', 'price', 'active', 'ingredients2', 'tags', 'category', 'new_photo']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.TextInput(attrs={'class': 'form-control'}),
             'price': forms.TextInput(attrs={'class': 'form-control'}),
-            'ingredients': forms.TextInput(attrs={'class': 'form-control', 'id': 'ingredients', 'data-role': 'tagsinput'}),
             'tags': forms.TextInput(attrs={'class': 'form-control', 'id': 'tags', 'data-role': 'tagsinput'}),
         }
 
     def save(self, commit=False):
         self.cleaned_data.pop('current_photo')
         pic = self.cleaned_data.pop('new_photo')
+        ingreds = self.cleaned_data.pop('ingredients2')
 
         parent_dish = super().save(self)
-
         if pic:
             parent_dish.photo = pic
 
+        parent_dish.ingredients = ingreds.split(",")
+        parent_dish.active = True
         parent_dish.save()
 
         return parent_dish

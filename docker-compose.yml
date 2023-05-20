@@ -3,15 +3,18 @@ version: '3.8'
 services:
   db:
     image: postgres
-    volumes:
-      - ./data/db:/var/lib/postgresql/data
+    # volumes:
+    #   - ./data/db:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=easyorder
       - POSTGRES_USER=easyorder
       - POSTGRES_PASSWORD=easyorder
+    ports:
+      - "5432:5432"
+
 
   redis:
-    image: redis
+    image: redis:7.0.5
     ports:
       - "6379:6379"
 

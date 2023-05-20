@@ -30,9 +30,11 @@ class PostNewOrder(serializers.Serializer):
 
 
 class SummaryOrderStatusSerializer(serializers.ModelSerializer):
+    dishes = PlatosSerializer(read_only=True, many=True)
+
     class Meta:
         model = Order
-        fields = ["order_placed_at", "order_delivered_at", "ws_code", "status", "brand", "amount", "order_collection_code"]
+        fields = ["dishes", "order_placed_at", "order_delivered_at", "ws_code", "status", "brand", "amount", "order_collection_code"]
 
 # class listcategorybyuuid(serializers.ModelSerializer):
 #     class Meta:

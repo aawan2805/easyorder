@@ -29,10 +29,10 @@ DEBUG = True
 ALLOWED_HOSTS = ['*', '192.168.1.138', '0.0.0.0', 'localhost', '127.0.0.1']
 
 # SSL settings
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# SECURE_SSL_REDIRECT = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 # Application definition
@@ -67,8 +67,17 @@ MIDDLEWARE = [
     # 'api.middleware.BrandCookieMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = ["*", "0.0.0.0"]
-CORS_ORIGIN_ALLOW_ALL  = True
+# CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_ALL_ORIGINS  = True
+CORS_ALLOWED_ORIGINS = [
+    "https://rocket-order.com",
+    "http://rocket-order.com",
+    "http://localhost:8000",
+    "http://127.0.0.1:9000",
+    "https://cdnjs.cloudflare.com",
+]
 
 ROOT_URLCONF = 'easyorder.urls'
 
@@ -101,7 +110,7 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             "hosts": [('redis', 6379)],
-        },
+        }
     },
 }
 

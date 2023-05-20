@@ -80,6 +80,8 @@ class OrderView(CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = PostNewOrder(data=json.loads(request.data.get('body')))
         if serializer.is_valid(raise_exception=False):
+            print(serializer.data)
+            return None
             total_amount = 0.0
             all_dishes = [dish["dish_uuid"] for dish in serializer.data['dishes']]
 
@@ -97,7 +99,12 @@ class OrderView(CreateAPIView):
             new_order.set_order_collection_code()
             new_order.set_random_ws()
 
-            for dish in dishes:
+            # Add dishes to the intermediary table
+            for obj in dishes:
+                AdditionalOrder.objects.create(order=new_order,
+                                               dish=obj['dish'],
+                                               quantity=1,
+                                               exclude_ingredients=obj['exclude_ingredients'])
                 new_order.dishes.add(dish)
             new_order.save()
 
@@ -179,8 +186,15 @@ class SummaryOrderStatus(ListAPIView):
     model = Order
     lookup_field = 'collection_code'
 
-    def get_queryset(self):
-        collection_code = self.kwargs.get('collection_code', None)
-        order = Order.objects.get(order_collection_code=collection_code)
-        print("ORDER:", order)
-        return order
+    def get(self, request, *args, **kwargs):
+        try:
+            collection_code = self.kwargs.get(self.lookup_field, None)
+            order = Order.objects.prefetch_related('dishes').get(order_collection_code=collection_code)
+            serializer_result = self.serializer_class(order)
+            data = serializer_result
+            return Response(data=serializer_result.data)
+        except Order.DoesNotExist:
+            print("Unknown object")
+            return Response(data=None, status=status.HTTP_404_NOT_FOUND)
+        except:
+            return Response(data=None, status=status.HTTP_404_NOT_FOUND)

@@ -29,7 +29,7 @@
     <div class="col-12" id="add-new-branch">
         <div class="form-group row p-t-20">
             <div class="card card-body">
-                <form class="form-horizontal m-t-30" action="{% url 'panel:edit-plato' uuid %}" method="POST" enctype="multipart/form-data">
+                <form class="form-horizontal m-t-30" action="{% url 'panel:edit-plato' uuid %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="form-group">
                         <label><span class="help">Nombre</span></label>
@@ -75,8 +75,8 @@
    
                     <div class="form-group">
                         <label><span class="help">Ingredientes</span></label>
-                        {{ form.ingredients }}
-                        <small class="text-danger">{{ form.errors.ingredients }}</small>
+                        {{ form.ingredients2 }}
+                        <small class="text-danger">{{ form.errors.ingredients2 }}</small>
                         <div>
                             <span class="help-block"><small><i class="mr-1 mdi mdi-information"></i>Introduce los ingredientes separados por coma</small></span>
                         </div>
