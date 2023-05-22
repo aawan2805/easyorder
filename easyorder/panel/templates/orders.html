@@ -131,10 +131,37 @@
 
             const orderPlacedAtCell = document.createElement('td');
             order.dishes.forEach(dish => {
+                dishDiv = document.createElement('div');
+
                 span = document.createElement('span');
                 span.setAttribute("class", "badge text-bg-success")
                 span.innerHTML = dish
-                orderPlacedAtCell.appendChild(span)
+
+                let accordion = `
+                    <div class="accordion" id="accordionExample">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                ${dish.dish__name}
+                            </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                ${dish.exclude_ingredients.map(ing => (
+                                    `<span class="badge text-bg-danger">${ing}</span>`
+                                ))}
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+
+                divAccordion = document.createElement('div');
+                divAccordion.innerHTML = accordion
+
+                // dishDiv.append(span)
+                dishDiv.append(divAccordion)
+                orderPlacedAtCell.appendChild(dishDiv)
             })
             row.appendChild(orderPlacedAtCell);
 

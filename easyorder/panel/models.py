@@ -6,6 +6,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils.crypto import get_random_string
+from panel.constants import ORDER_CHOICES, ORDER_PLACED
 
 
 class Profile(models.Model):
@@ -88,30 +89,20 @@ class Dish(models.Model):
             return settings.STATIC_URL + 'img/default/meal.png'
 
 
-ORDER_PLACED = 0
-ORDER_ACCEPTED = 1
-ORDER_PREPARING = 2
-ORDER_PREPARED = 3
-ORDER_DELIVERED = 4
-ORDER_CHOICES = (
-    (ORDER_PLACED, 0),
-    (ORDER_ACCEPTED, 1),
-    (ORDER_PREPARING, 2),
-    (ORDER_PREPARED, 3),
-    (ORDER_DELIVERED, 4),
-)
 class Order(models.Model):
     dishes = models.ManyToManyField(Dish, through='AdditionalOrder', related_name='orders')
     order_placed_at = models.DateTimeField(blank=False, null=False)
     order_delivered_at = models.DateTimeField(blank=True, null=True)
-    ws_code = models.CharField(max_length=50, unique=True)
+    ws_code = models.CharField(max_length=50, unique=False)
     status = models.IntegerField(default=ORDER_PLACED, choices=ORDER_CHOICES)
     brand = models.ForeignKey(Brand, related_name='orders', on_delete=models.DO_NOTHING)
     amount = models.FloatField(default=0.0)
     order_collection_code = models.CharField(max_length=10, unique=True, null=True, blank=True)
 
     def set_random_ws(self):
-        self.ws_code = get_random_string(length=50)
+        r = get_random_string(length=50)
+        print("UInique code ws", r)
+        self.ws_code = r
 
     def set_order_collection_code(self):
         self.order_collection_code = f'ES{self.id+1}'
@@ -125,7 +116,7 @@ class AdditionalOrder(models.Model):
 
     class Meta:
         db_table = "additional_order"
-        unique_together = ('order', 'dish')
+        # unique_together = ('order', 'dish', '')
 
 
 class Register(models.Model):

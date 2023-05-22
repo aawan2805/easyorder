@@ -16,6 +16,7 @@ from rest_framework.response import Response
 
 from api.helper import ApiResponse
 from panel.models import *
+import uuid
 
 from api.serializers import OrderSerializer, SummaryOrderStatusSerializer
 
@@ -78,34 +79,36 @@ class OrderView(CreateAPIView):
     serializer_class = PostNewOrder
 
     def create(self, request, *args, **kwargs):
-        serializer = PostNewOrder(data=json.loads(request.data.get('body')))
-        if serializer.is_valid(raise_exception=False):
-            print(serializer.data)
-            return None
-            total_amount = 0.0
-            all_dishes = [dish["dish_uuid"] for dish in serializer.data['dishes']]
+        dd = json.loads(request.data.get('body'))
+        # for dish in dd['dishes']:
+        #     dish['dish_uuid'] = uuid.UUID(dish['dish_uuid'])
+        # dd['brand_uuid'] = uuid.UUID(dd['brand_uuid'])
 
-            dishes = []
+        serializer = PostNewOrder(data=dd)
+
+        if serializer.is_valid():
+            total_amount = 0.0
+        
+            all_dishes = [{"dish": dish["dish_uuid"], "exclude_ingredients": dish["exclude_ingredients"]} for dish in serializer.data['dishes']]
             for dish in all_dishes:
-                aux = get_object_or_404(Dish, uuid=dish)
-                dishes.append(aux)
+                aux = get_object_or_404(Dish, uuid=uuid.UUID(dish["dish"]))
                 total_amount += aux.price
             new_order = Order(order_placed_at=timezone.now(),
                               order_delivered_at=None,
-                              brand=Brand.objects.get(uuid=serializer.data['brand_uuid']),
+                              brand=Brand.objects.get(uuid=uuid.UUID(serializer.data['brand_uuid'])),
                               amount=total_amount)
             # Set ws code and collection code
+
             new_order.save()
             new_order.set_order_collection_code()
-            new_order.set_random_ws()
-
+            # new_order.set_random_ws()
             # Add dishes to the intermediary table
-            for obj in dishes:
-                AdditionalOrder.objects.create(order=new_order,
-                                               dish=obj['dish'],
+            for obj in all_dishes:
+                x = AdditionalOrder.objects.create(order=new_order,
+                                               dish=Dish.objects.get(uuid=uuid.UUID(obj['dish'])),
                                                quantity=1,
-                                               exclude_ingredients=obj['exclude_ingredients'])
-                new_order.dishes.add(dish)
+                                               exclude_ingredients=[ing["name"] for ing in obj['exclude_ingredients'] if ing["exclude"] == True])
+#                new_order.dishes.add(dish)
             new_order.save()
 
             headers = self.get_success_headers(serializer.data)
@@ -126,12 +129,13 @@ class OrderView(CreateAPIView):
                 'order_delivered_at': new_order.order_delivered_at,
                 'ws_code': new_order.ws_code,
                 'status': new_order.status,
-                'dishes': [dish.name for dish in new_order.dishes.all()],
+                'dishes': list(AdditionalOrder.objects.filter(order=new_order).select_related("dish").values("dish__name", "dish__price", "exclude_ingredients")),
                 'brand_id': new_order.brand_id,
                 'amount': new_order.amount,
                 'collection_code': new_order.order_collection_code,
                 'selected': False
             }
+
             channel_layer = channels.layers.get_channel_layer()
             async_to_sync(channel_layer.group_send)(
                 f'orders_{new_order.brand.uuid}',
@@ -144,7 +148,8 @@ class OrderView(CreateAPIView):
             return rsp.get_response()
     
         else:
-            print(serializer.errors)
+            print("Errors", serializer.errors)
+            return Response(data=None, status=status.HTTP_401_UNAUTHORIZED)
 
 class OrderStatus(ListAPIView):
     http_method_names = ['get'] 
@@ -189,10 +194,10 @@ class SummaryOrderStatus(ListAPIView):
     def get(self, request, *args, **kwargs):
         try:
             collection_code = self.kwargs.get(self.lookup_field, None)
-            order = Order.objects.prefetch_related('dishes').get(order_collection_code=collection_code)
-            serializer_result = self.serializer_class(order)
-            data = serializer_result
-            return Response(data=serializer_result.data)
+            order = Order.objects.get(order_collection_code=collection_code)
+            dishes_ingredients = AdditionalOrder.objects.filter(order=order).select_related("dish").values("dish__name", "dish__price", "exclude_ingredients")
+            order_status = order.status
+            return Response(data={"dishes": dishes_ingredients, "order_status": order_status})
         except Order.DoesNotExist:
             print("Unknown object")
             return Response(data=None, status=status.HTTP_404_NOT_FOUND)

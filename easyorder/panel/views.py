@@ -153,7 +153,7 @@ class OrdersView(LoginRequiredMixin, ListView):
                 'order_delivered_at': order.order_delivered_at,
                 'ws_code': order.ws_code,
                 'status': order.status,
-                'dishes': [dish.name for dish in order.dishes.all()],
+                'dishes': list(AdditionalOrder.objects.filter(order=order).select_related("dish").values("dish__name", "exclude_ingredients")),
                 'brand_id': order.brand_id,
                 'amount': order.amount,
                 'collection_code': order.order_collection_code,
@@ -161,6 +161,8 @@ class OrdersView(LoginRequiredMixin, ListView):
                 'error': False,
                 'green': False,
             })
+        
+        print(data['orders'][0])
 
         return data
 
@@ -206,7 +208,7 @@ class ChangeOrderStatus(LoginRequiredMixin, View):
                 'order_delivered_at': order.order_delivered_at,
                 'ws_code': order.ws_code,
                 'status': order.status,
-                'dishes': [dish.name for dish in order.dishes.all()],
+                'dishes': list(AdditionalOrder.objects.filter(order=order).select_related("dish").values("dish__name", "exclude_ingredients")),
                 'brand_id': order.brand_id,
                 'amount': order.amount,
                 'collection_code': order.order_collection_code,

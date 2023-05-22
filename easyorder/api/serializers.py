@@ -20,21 +20,23 @@ class ListCategoryByUuid(serializers.Serializer):
 
 
 class OrderDishes(serializers.Serializer):
-    dish_uuid = serializers.UUIDField()
+    dish_uuid = serializers.CharField()
     quantity = serializers.IntegerField()
+    exclude_ingredients = serializers.ListField()
 
 
 class PostNewOrder(serializers.Serializer):
     dishes = serializers.ListField(child=OrderDishes())
-    brand_uuid = serializers.UUIDField()
+    brand_uuid = serializers.CharField()
 
 
 class SummaryOrderStatusSerializer(serializers.ModelSerializer):
-    dishes = PlatosSerializer(read_only=True, many=True)
+    ingredients = serializers.ListField()
+    # dish
 
-    class Meta:
-        model = Order
-        fields = ["dishes", "order_placed_at", "order_delivered_at", "ws_code", "status", "brand", "amount", "order_collection_code"]
+    # class Meta:
+    #     model = Order
+    #     fields = ["dishes", "order_placed_at", "order_delivered_at", "ws_code", "status", "brand", "amount", "order_collection_code"]
 
 # class listcategorybyuuid(serializers.ModelSerializer):
 #     class Meta:
