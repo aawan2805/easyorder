@@ -198,9 +198,9 @@ class SummaryOrderStatus(ListAPIView):
         try:
             collection_code = self.kwargs.get(self.lookup_field, None)
             order = Order.objects.get(order_collection_code=collection_code)
-            dishes_ingredients = AdditionalOrder.objects.filter(order=order).select_related("dish").values("dish__name", "dish__price", "exclude_ingredients")
+            dishes_ingredients = AdditionalOrder.objects.filter(order=order).select_related("dish").values("dish__name", "dish__price", "exclude_ingredients", "quantity")
             order_status = order.status
-            return Response(data={"dishes": dishes_ingredients, "order_status": order_status})
+            return Response(data={"dishes": dishes_ingredients, "order_status": order_status, "total_amount": order.amount})
         except Order.DoesNotExist:
             print("Unknown object")
             return Response(data=None, status=status.HTTP_404_NOT_FOUND)
