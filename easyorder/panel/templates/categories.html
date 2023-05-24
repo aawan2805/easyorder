@@ -39,16 +39,18 @@
                     <th scope="col">Nombre</th>
                     <th scope="col">Ícono</th>
                     <th scope="col">Por defecto?</th>
+                    <th scope="col">Activa</th>
                     <th scope="col"></th>
                     <th scope="col"></th>
                 </tr>
             </thead>
             <tbody>
                 {% for category in object_list %}
-                    <tr>
+                    <tr {% if not category.active %} class="table-danger" {% endif %}>
                         <td>{{ category.name }}</td>
                         <td>{{ category.icon }}</td>
                         <td>{% if category.default %} Sí {% else %} No {% endif %}</td>
+                        <td>{% if category.active %} Sí {% else %} No {% endif %}</td>
                         <td>
                             <a href="{% url 'panel:edit-category' category.uuid %}">
                                 <button class="btn btn-success">

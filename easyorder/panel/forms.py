@@ -13,7 +13,7 @@ class AddDish(ModelForm):
         self.user = user
         # Displays the label isnted of id in the input.
 
-        category_query_set = Category.objects.filter(brand=self.user.profile.brand)
+        category_query_set = Category.objects.filter(brand=self.user.profile.brand, deleted=False)
         self.fields['category'] = forms.ModelChoiceField(queryset=category_query_set, empty_label=None, widget=forms.Select(attrs={'class': 'form-control','data-live-search': 'true', 'title':'Choose one of the following...'}), required=True)
         self.fields['category'].label_from_instance = lambda category: '{}'.format(category.name)
                 
@@ -41,7 +41,7 @@ class AddDish(ModelForm):
         new_dish.ingredients = self.cleaned_data.pop('ingredients', '').split(',')
         # new_dish.tags = parse_tags(self.cleaned_data.pop('tags', False))
         new_dish.tags = self.cleaned_data.pop('tags', '').split(',')
-        new_dish.active = True
+        new_dish.active = self.cleaned_data.get('active')
         new_dish.save()
 
         # Mark brand as active.
@@ -57,7 +57,7 @@ class EditDishForm(ModelForm):
         self.user = user
         self.current_image = str(settings.MEDIA_URL) + str(self.instance.photo)
 
-        category_query_set = Category.objects.filter(brand=self.user.profile.brand)
+        category_query_set = Category.objects.filter(brand=self.user.profile.brand, deleted=False)
         self.fields['category'] = forms.ModelChoiceField(queryset=category_query_set, empty_label=None, widget=forms.Select(attrs={'class': 'form-control','data-live-search': 'true', 'title':'Choose one of the following...'}), required=True)
         self.fields['category'].label_from_instance = lambda category: '{}'.format(category.name)
 
@@ -94,7 +94,7 @@ class EditDishForm(ModelForm):
             parent_dish.photo = pic
 
         parent_dish.ingredients = ingreds.split(",")
-        parent_dish.active = True
+        parent_dish.active = self.cleaned_data.get('active', False)
         parent_dish.save()
 
         return parent_dish
@@ -103,13 +103,6 @@ class EditDishForm(ModelForm):
 class ChangeOrderStatusForm(ModelForm):
     class Meta:
         model = Order
-        # exclude = ('dishes', 
-        #            'order_placed_at', 
-        #            'order_delivered_at', 
-        #            'ws_code', 
-        #            'brand', 
-        #            'amount', 
-        #            'order_collection_code',)
         fields = ['status']
 
 
@@ -120,7 +113,7 @@ class EditCategoryForm(ModelForm):
 
     class Meta:
         model = Category
-        fields = ['name', 'icon', 'default']
+        fields = ['name', 'icon', 'default', 'active']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'icon': forms.TextInput(attrs={'class': 'form-control'}),
@@ -142,7 +135,7 @@ class AddCategoryFrom(ModelForm):
  
     class Meta: 
         model = Category
-        fields = ['name', 'icon', 'default']
+        fields = ['name', 'icon', 'default', 'active']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'icon': forms.TextInput(attrs={'class': 'form-control'}),

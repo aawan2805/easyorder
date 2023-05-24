@@ -42,6 +42,11 @@
                         <small class="text-danger">{{ form.errors.icon }}</small>
                     </div>
                     <div class="form-group">
+                        <label><span class="help">Activa</span></label>
+                        {{ form.active }}
+                        <small class="text-danger">{{ form.errors.active }}</small>
+                    </div>
+                    <div class="form-group">
                         <label><span class="help">Por defecto?</span></label>
                         {{ form.default }}
                         <small class="text-danger">{{ form.errors.default }}</small>

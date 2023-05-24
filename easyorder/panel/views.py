@@ -44,7 +44,7 @@ class Platos(LoginRequiredMixin, ListView):
     template_name = 'platos.html'
 
     def get_queryset(self):
-        qs = Dish.objects.filter(brand=self.request.user.profile.brand, active=True)
+        qs = Dish.objects.filter(brand=self.request.user.profile.brand, deleted=False)
         return qs
 
 
@@ -125,7 +125,7 @@ class DeleteDish(LoginRequiredMixin, DeleteView):
         # Check que el plato pertenece a éste dueño.
         if self.request.user.profile.brand == self.object.brand:
             dish_name = self.object.name
-            self.object.active = False
+            self.object.deleted = True
             self.object.save()
 
             messages.success(request, f'Plato {dish_name} eliminado con éxito.')
@@ -153,7 +153,7 @@ class OrdersView(LoginRequiredMixin, ListView):
                 'order_delivered_at': order.order_delivered_at,
                 'ws_code': order.ws_code,
                 'status': order.status,
-                'dishes': list(AdditionalOrder.objects.filter(order=order).select_related("dish").values("dish__name", "exclude_ingredients")),
+                'dishes': list(AdditionalOrder.objects.filter(order=order).select_related("dish").values("dish__name", "exclude_ingredients", "quantity")),
                 'brand_id': order.brand_id,
                 'amount': order.amount,
                 'collection_code': order.order_collection_code,
@@ -247,7 +247,7 @@ class Categories(LoginRequiredMixin, ListView):
     template_name = 'categories.html'
 
     def get_queryset(self):
-        qs = Category.objects.filter(brand=self.request.user.profile.brand, active=True)
+        qs = Category.objects.filter(brand=self.request.user.profile.brand, deleted=False)
         return qs
 
 
@@ -329,7 +329,7 @@ class DeleteCategory(LoginRequiredMixin, DeleteView):
                 related_dishes.update(active=False)
 
             category_name = self.object.name
-            self.object.active = False
+            self.object.deleted = True
             self.object.save()
 
             messages.success(request, f'Categoría {category_name} eliminada con éxito. Se han eliminado {len(related_dishes)} platos asociados a ésta cregoría.')

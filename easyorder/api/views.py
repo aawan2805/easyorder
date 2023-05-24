@@ -33,7 +33,7 @@ class DishView(ListAPIView):
         brand = get_object_or_404(Brand, uuid=brand_uuid)
         category = get_object_or_404(Category, uuid=category_uuid)
 
-        return Dish.objects.filter(brand=brand, category=category, active=True)
+        return Dish.objects.filter(brand=brand, category=category, active=True, deleted=False)
 
 
     # def get(self, request, *args, **kwargs):
@@ -54,10 +54,10 @@ class CategoryView(ListAPIView):
         brand = get_object_or_404(Brand, uuid=brand_uuid)
 
         categories = []
-        for category in Category.objects.filter(brand=brand, active=True):
+        for category in Category.objects.filter(brand=brand, active=True, deleted=False):
             categories.append({
                 "key": category.uuid,
-                "icon": "x",
+                "icon": "",
                 "label": category.name 
             })
 
@@ -80,6 +80,7 @@ class OrderView(CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         dd = json.loads(request.data.get('body'))
+        print(json.dumps(dd, indent=4))
         # for dish in dd['dishes']:
         #     dish['dish_uuid'] = uuid.UUID(dish['dish_uuid'])
         # dd['brand_uuid'] = uuid.UUID(dd['brand_uuid'])
@@ -89,10 +90,10 @@ class OrderView(CreateAPIView):
         if serializer.is_valid():
             total_amount = 0.0
         
-            all_dishes = [{"dish": dish["dish_uuid"], "exclude_ingredients": dish["exclude_ingredients"]} for dish in serializer.data['dishes']]
+            all_dishes = [{"dish": dish["dish_uuid"], "exclude_ingredients": dish["exclude_ingredients"], "quantity": dish["quantity"]} for dish in serializer.data['dishes']]
             for dish in all_dishes:
                 aux = get_object_or_404(Dish, uuid=uuid.UUID(dish["dish"]))
-                total_amount += aux.price
+                total_amount += (dish["quantity"] * aux.price)
             new_order = Order(order_placed_at=timezone.now(),
                               order_delivered_at=None,
                               brand=Brand.objects.get(uuid=uuid.UUID(serializer.data['brand_uuid'])),
@@ -106,7 +107,7 @@ class OrderView(CreateAPIView):
             for obj in all_dishes:
                 x = AdditionalOrder.objects.create(order=new_order,
                                                dish=Dish.objects.get(uuid=uuid.UUID(obj['dish'])),
-                                               quantity=1,
+                                               quantity=obj['quantity'],
                                                exclude_ingredients=[ing["name"] for ing in obj['exclude_ingredients'] if ing["exclude"] == True])
 #                new_order.dishes.add(dish)
             new_order.save()
@@ -136,20 +137,22 @@ class OrderView(CreateAPIView):
                 'selected': False
             }
 
-            channel_layer = channels.layers.get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                f'orders_{new_order.brand.uuid}',
-                {
-                    'type': 'chat_message',
-                    'message': json.dumps(order_json, cls=DjangoJSONEncoder),
-                }
-            )
+            try:
+                channel_layer = channels.layers.get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    f'orders_{new_order.brand.uuid}',
+                    {
+                        'type': 'chat_message',
+                        'message': json.dumps(order_json, cls=DjangoJSONEncoder),
+                    }
+                )
+            except:
+                print("Couldn't send notification to restaurant.")
 
             return rsp.get_response()
     
-        else:
-            print("Errors", serializer.errors)
-            return Response(data=None, status=status.HTTP_401_UNAUTHORIZED)
+        print("Errors", serializer.errors)
+        return Response(data=None, status=status.HTTP_401_UNAUTHORIZED)
 
 class OrderStatus(ListAPIView):
     http_method_names = ['get'] 

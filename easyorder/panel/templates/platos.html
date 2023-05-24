@@ -40,20 +40,22 @@
                     <th scope="col">Ingredientes</th>
                     <th scope="col">Etiquetas</th>
                     <th scope="col">Foto</th>
+                    <th scope="col">Activo</th>
                     <th scope="col"></th>
                     <th scope="col"></th>
                 </tr>
             </thead>
             <tbody>
                 {% for plato in object_list %}
-                <tr>
-                    <td>{{ plato.name }}</th>
-                    <td>{{ plato.description }}</th>
-                    <td>{{ plato.price }}€</th>
-                    <td>{{ plato.ingredients }}</th>
-                    <td>{{ plato.tags }}</th>
+                <tr {% if not plato.active %} class="table-danger" {% endif %}>
+                    <td>{{ plato.name }}</td>
+                    <td>{{ plato.description }}</td>
+                    <td>{{ plato.price }}€</td>
+                    <td>{{ plato.ingredients }}</td>
+                    <td>{{ plato.tags }}</td>
                     <td><img src="/media/{{ plato.photo }}" alt="{{ plato.name }}" height="70" width="70"></th>
                     <!-- <td><a href="{% url 'panel:edit-plato' plato.uuid %}">Editar</a></td> -->
+                    <td>{% if plato.active %}Sí{% else %}No{% endif %}</td>
                     <td>
                         <a href="{% url 'panel:edit-plato' plato.uuid %}">
                             <button class="btn btn-success">

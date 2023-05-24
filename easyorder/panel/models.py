@@ -47,6 +47,7 @@ class Category(models.Model):
     # active = models.BooleanField(default=True, null=False)
     priority = models.IntegerField(null=False, default=1)
     active = models.BooleanField(default=True)
+    deleted = models.BooleanField(default=False, null=True, blank=True)
 
     class Meta:
         db_table = 'category'
@@ -74,6 +75,7 @@ class Dish(models.Model):
     photo = models.ImageField(upload_to=dishes_directory_path, blank=True, null=True)
     tags = models.CharField(max_length=100, default="", blank=True) # Para advertencias (alergicos, etc...)
     active = models.BooleanField(default=True, blank=False, null=False)
+    deleted = models.BooleanField(default=False, blank=True, null=True)
 
     class Meta:
         db_table = 'dish'
