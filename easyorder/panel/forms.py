@@ -44,10 +44,10 @@ class AddDish(ModelForm):
         new_dish.active = self.cleaned_data.get('active')
         new_dish.save()
 
-        # Mark brand as active.
-        if not brand.active and new_dish.active:
-            brand.active = True
-            brand.save()
+        # # Mark brand as active.
+        # if not brand.active and new_dish.active:
+        #     brand.active = True
+        #     brand.save()
 
         return new_dish
 
@@ -154,10 +154,10 @@ class AddCategoryFrom(ModelForm):
         return self.cleaned_data.get('default')
 
     def save(self, commit=False):
-        new_dish = Category(**self.cleaned_data)
-        new_dish.brand = self.user.profile.brand
-        new_dish.save()
-        return new_dish
+        new_category = Category(**self.cleaned_data)
+        new_category.brand = self.user.profile.brand
+        new_category.save()
+        return new_category
 
 
 class RegistrationForm(ModelForm):

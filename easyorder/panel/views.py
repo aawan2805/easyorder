@@ -186,6 +186,7 @@ class OrdersView(LoginRequiredMixin, ListView):
                 'green': False,
             })
 
+        print(data)
         return data
 
     def get_context_data(self, **kwargs):
@@ -230,7 +231,7 @@ class ChangeOrderStatus(LoginRequiredMixin, View):
                 'order_delivered_at': order.order_delivered_at,
                 'ws_code': order.ws_code,
                 'status': order.status,
-                'dishes': list(AdditionalOrder.objects.filter(order=order).select_related("dish").values("dish__name", "exclude_ingredients")),
+                'dishes': list(AdditionalOrder.objects.filter(order=order).select_related("dish").values("dish__name", "exclude_ingredients", "quantity")),
                 'brand_id': order.brand_id,
                 'amount': order.amount,
                 'collection_code': order.order_collection_code,

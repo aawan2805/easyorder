@@ -25,7 +25,7 @@
     <div class="row mt-2">
         {% if not active %}
             <div class="alert alert-danger" role="alert">
-                El resturante <strong>no tiene platos</strong> o <strong>no están activos</strong>. No está disponible para poder hacer pedidos des de la app.
+                El resturante <strong>no está</strong>. No está disponible para poder hacer pedidos des de la app. 
             </div>
         {% endif %}
 
@@ -33,63 +33,64 @@
             <div class="alert alert-danger" role="alert">
                 El resturante <strong>no tiene categorías</strong> o <strong>no están activas</strong>. No está disponible para poder hacer pedidos des de la app.
             </div>
-        {% endif %}
-
-        {% if not object_list %}
-            <div class="alert alert-primary" role="alert">
-                No tienes platos. <a href="{% url 'panel:add-plato' %}">Añade uno.</a>
-            </div>
         {% else %}
-            <div class="row">
-                <div class="col-12">
-                    <a class="btn btn-primary" href="{% url 'panel:add-plato' %}" role="button">Añadir plato</a>
+            {% if not object_list %}
+                <div class="alert alert-primary" role="alert">
+                    No tienes platos. <a href="{% url 'panel:add-plato' %}">Añade uno.</a>
                 </div>
-            </div>
-    
-            <table class="table">
-                <thead>
-                <tr>
-                    <th scope="col">Nombre</th>
-                    <th scope="col">Descripción</th>
-                    <th scope="col">Precio</th>
-                    <th scope="col">Ingredientes</th>
-                    <th scope="col">Etiquetas</th>
-                    <th scope="col">Foto</th>
-                    <th scope="col">Activo</th>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for plato in object_list %}
-                <tr {% if not plato.active %} class="table-danger" {% endif %}>
-                    <td>{{ plato.name }}</td>
-                    <td>{{ plato.description }}</td>
-                    <td>{{ plato.price }}€</td>
-                    <td>{{ plato.ingredients }}</td>
-                    <td>{{ plato.tags }}</td>
-                    <td><img src="/media/{{ plato.photo }}" alt="{{ plato.name }}" height="70" width="70"></th>
-                    <!-- <td><a href="{% url 'panel:edit-plato' plato.uuid %}">Editar</a></td> -->
-                    <td>{% if plato.active %}Sí{% else %}No{% endif %}</td>
-                    <td>
-                        <a href="{% url 'panel:edit-plato' plato.uuid %}">
-                            <button class="btn btn-success">
-                                <i class="fa fa-edit"></i>
-                            </button>
-                        </a>
-                    </td>
-                    <td>
-                        <a href="{% url 'panel:delete-plato' plato.uuid %}">
-                            <button class="btn btn-danger">
-                                <i class="fa fa-trash"></i>
-                            </button>
-                        </a>
-                    </td>
-                <tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        {% endif %}
-          
+            {% else %}
+                <div class="row">
+                    <div class="col-12">
+                        <a class="btn btn-primary" href="{% url 'panel:add-plato' %}" role="button">Añadir plato</a>
+                    </div>
+                </div>
+        
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Descripción</th>
+                        <th scope="col">Precio</th>
+                        <th scope="col">Ingredientes</th>
+                        <th scope="col">Etiquetas</th>
+                        <th scope="col">Foto</th>
+                        <th scope="col">Activo</th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for plato in object_list %}
+                    <tr {% if not plato.active %} class="table-danger" {% endif %}>
+                        <td>{{ plato.name }}</td>
+                        <td>{{ plato.description }}</td>
+                        <td>{{ plato.price }}€</td>
+                        <td>{{ plato.ingredients }}</td>
+                        <td>{{ plato.tags }}</td>
+                        <td><img src="/media/{{ plato.photo }}" alt="{{ plato.name }}" height="70" width="70"></th>
+                        <!-- <td><a href="{% url 'panel:edit-plato' plato.uuid %}">Editar</a></td> -->
+                        <td>{% if plato.active %}Sí{% else %}No{% endif %}</td>
+                        <td>
+                            <a href="{% url 'panel:edit-plato' plato.uuid %}">
+                                <button class="btn btn-success">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'panel:delete-plato' plato.uuid %}">
+                                <button class="btn btn-danger">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </a>
+                        </td>
+                    <tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+
+
+        {% endif %}          
     </div>
 {% endblock %}

@@ -19,9 +19,22 @@
 {% endif %}
 {% endblock %}
 
+{% block style %}
+    #banner{
+        max-width: 100%;
+        height: auto;
+        left: 0px;
+        right: 0px;
+    }
+
+    #myImage{
+        max-width: 100%;
+        height: auto;
+        left: 0px;
+        right: 0px;
+    }
+{% endblock %}
 
 {% block content %}
-    <div class="row mt-2">
-        <img src="{{ img }}" alt="QR" height="50%">
-    </div>
+    <img src="{{ img }}" class="img-fluid" alt="QR">
 {% endblock %}

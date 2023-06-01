@@ -130,7 +130,7 @@ class OrderView(CreateAPIView):
                 'order_delivered_at': new_order.order_delivered_at,
                 'ws_code': new_order.ws_code,
                 'status': new_order.status,
-                'dishes': list(AdditionalOrder.objects.filter(order=new_order).select_related("dish").values("dish__name", "dish__price", "exclude_ingredients")),
+                'dishes': list(AdditionalOrder.objects.filter(order=new_order).select_related("dish").values("dish__name", "dish__price", "exclude_ingredients", "quantity")),
                 'brand_id': new_order.brand_id,
                 'amount': new_order.amount,
                 'collection_code': new_order.order_collection_code,

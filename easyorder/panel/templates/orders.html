@@ -130,9 +130,9 @@
             row.appendChild(orderIdCell);
 
             const orderPlacedAtCell = document.createElement('td');
+            console.log(order.dishes)
             order.dishes.forEach(dish => {
                 dishDiv = document.createElement('div');
-
                 span = document.createElement('span');
                 span.setAttribute("class", "badge text-bg-success")
                 span.innerHTML = dish
