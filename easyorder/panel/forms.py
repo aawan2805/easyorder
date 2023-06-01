@@ -21,7 +21,7 @@ class AddDish(ModelForm):
         self.fields['photo'].widget.attrs['id'] = 'image'
     
     # image = forms.ImageField(required=True)
-    ingredients = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'ingredients', 'data-role': 'tagsinput'}), required=False)
+    ingredients = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'ingredients', 'data-role': 'tagsinput'}), required=True)
     tags = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'tags', 'data-role': 'tagsinput'}), required=False)
  
     class Meta: 
@@ -45,8 +45,9 @@ class AddDish(ModelForm):
         new_dish.save()
 
         # Mark brand as active.
-        brand.active = True
-        brand.save()
+        if not brand.active and new_dish.active:
+            brand.active = True
+            brand.save()
 
         return new_dish
 
@@ -68,15 +69,16 @@ class EditDishForm(ModelForm):
 
         self.fields['ingredients2'].initial = ", ".join(self.instance.ingredients)
 
-        self.fields['tags'].initial = ",".join(self.instance.tags)
+        self.fields['tags2'].initial = ", ".join(self.instance.tags)
 
     current_photo = forms.CharField(required=False)
     new_photo = forms.ImageField(required=False)
     ingredients2 = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'ingredients', 'data-role': 'tagsinput'}))
+    tags2 = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'tags', 'data-role': 'tagsinput'}), required=False)
 
     class Meta:
         model = Dish
-        fields = ['name', 'description', 'price', 'active', 'ingredients2', 'tags', 'category', 'new_photo']
+        fields = ['name', 'description', 'price', 'active', 'ingredients2', 'tags2', 'category', 'new_photo']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.TextInput(attrs={'class': 'form-control'}),
@@ -88,12 +90,14 @@ class EditDishForm(ModelForm):
         self.cleaned_data.pop('current_photo')
         pic = self.cleaned_data.pop('new_photo')
         ingreds = self.cleaned_data.pop('ingredients2')
+        tgs = self.cleaned_data.pop('tags2')
 
         parent_dish = super().save(self)
         if pic:
             parent_dish.photo = pic
 
         parent_dish.ingredients = ingreds.split(",")
+        parent_dish.tags = tgs.split(",")
         parent_dish.active = self.cleaned_data.get('active', False)
         parent_dish.save()
 

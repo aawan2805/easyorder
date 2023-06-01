@@ -42,9 +42,27 @@ class LoginUser(LoginView):
 class Platos(LoginRequiredMixin, ListView):
     model = Dish
     template_name = 'platos.html'
+    brand_active = True
+    chain_has_categories = True
+
+    def render_to_response(self, context, **response_kwargs):
+        context.update({"active": self.brand_active})
+        context.update({"has_categories": True if self.chain_has_categories > 0 else False})
+
+        response_kwargs.setdefault("content_type", self.content_type)
+
+        return self.response_class(
+            request=self.request,
+            template=self.get_template_names(),
+            context=context,
+            using=self.template_engine,
+            **response_kwargs,
+        )
 
     def get_queryset(self):
         qs = Dish.objects.filter(brand=self.request.user.profile.brand, deleted=False)
+        self.brand_active = self.request.user.profile.brand.active
+        self.chain_has_categories = len(self.request.user.profile.brand.categories.filter(deleted=False, active=True))
         return qs
 
 
@@ -67,7 +85,7 @@ class AddDishView(LoginRequiredMixin, CreateView):
             messages.success(self.request, f'Plato {data_form.cleaned_data.get("name")} creado.') 
 
         if not data_form.is_valid():
-            print(data_form.errors.as_data()) 
+            print(data_form.errors.as_data())
             messages.error(self.request, 'Please correct the errors below:')
             return render(self.request, self.template_name, {'form': data_form})            
 
@@ -128,6 +146,12 @@ class DeleteDish(LoginRequiredMixin, DeleteView):
             self.object.deleted = True
             self.object.save()
 
+            total_dishes_brand = len(self.object.brand.dishes.filter(deleted=True))
+            if total_dishes_brand <= 0:
+                br = self.object.brand
+                br.active = False
+                br.save()
+
             messages.success(request, f'Plato {dish_name} eliminado con éxito.')
         else:
             messages.success(request, f'No se pudo borrar el plato {dish_name}. Porfavor inténtelo más tarde.')
@@ -161,8 +185,6 @@ class OrdersView(LoginRequiredMixin, ListView):
                 'error': False,
                 'green': False,
             })
-        
-        print(data['orders'][0])
 
         return data
 

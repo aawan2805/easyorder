@@ -22,15 +22,30 @@
 
 {% block content %}
 
-    <div class="row">
-        <div class="col-12">
-            <a class="btn btn-primary" href="{% url 'panel:add-plato' %}" role="button">Añadir plato</a>
-        </div>
-    </div>
     <div class="row mt-2">
+        {% if not active %}
+            <div class="alert alert-danger" role="alert">
+                El resturante <strong>no tiene platos</strong> o <strong>no están activos</strong>. No está disponible para poder hacer pedidos des de la app.
+            </div>
+        {% endif %}
+
+        {% if not has_categories %}
+            <div class="alert alert-danger" role="alert">
+                El resturante <strong>no tiene categorías</strong> o <strong>no están activas</strong>. No está disponible para poder hacer pedidos des de la app.
+            </div>
+        {% endif %}
+
         {% if not object_list %}
-            <p>No tienes platos. <a href="{% url 'panel:add-plato' %}">Añade uno.</a></p>
+            <div class="alert alert-primary" role="alert">
+                No tienes platos. <a href="{% url 'panel:add-plato' %}">Añade uno.</a>
+            </div>
         {% else %}
+            <div class="row">
+                <div class="col-12">
+                    <a class="btn btn-primary" href="{% url 'panel:add-plato' %}" role="button">Añadir plato</a>
+                </div>
+            </div>
+    
             <table class="table">
                 <thead>
                 <tr>

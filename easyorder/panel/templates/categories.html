@@ -22,17 +22,18 @@
 
 
 {% block content %}
-    <div class="row">
-        <div class="col-12">
-            <a class="btn btn-primary" href="{% url 'panel:add-category' %}" role="button">Añadir catgegoría</a>
-        </div>
-    </div>
     <div class="row mt-2">
         {% if not object_list %}
             <div class="alert alert-primary" role="alert">
-                No tienes categorías.
+                No tienes categorías. <a href="{% url 'panel:add-category' %}">Añade una.</a>
             </div>
         {% else %}
+            <div class="row">
+                <div class="col-12">
+                    <a class="btn btn-primary" href="{% url 'panel:add-category' %}" role="button">Añadir catgegoría</a>
+                </div>
+            </div>
+    
             <table class="table">
                 <thead>
                 <tr>

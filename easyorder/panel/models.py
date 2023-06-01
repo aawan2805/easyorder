@@ -72,8 +72,8 @@ class Dish(models.Model):
     category = models.ForeignKey(Category, models.DO_NOTHING, related_name='dishes')
     ingredients = models.JSONField(default=list, blank=True, null=True)
     brand = models.ForeignKey(Brand, models.DO_NOTHING, related_name='dishes')
-    photo = models.ImageField(upload_to=dishes_directory_path, blank=True, null=True)
-    tags = models.CharField(max_length=100, default="", blank=True) # Para advertencias (alergicos, etc...)
+    photo = models.ImageField(upload_to=dishes_directory_path, blank=False, null=False)
+    tags = models.JSONField(default=list, blank=True, null=True) # Para advertencias (alergicos, etc...)
     active = models.BooleanField(default=True, blank=False, null=False)
     deleted = models.BooleanField(default=False, blank=True, null=True)
 
