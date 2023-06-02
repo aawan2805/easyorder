@@ -349,7 +349,7 @@ class DeleteCategory(LoginRequiredMixin, DeleteView):
         if self.request.user.profile.brand == self.object.brand:
             related_dishes = self.object.dishes.all()
             if related_dishes:
-                related_dishes.update(active=False)
+                related_dishes.update(deleted=True, active=False)
 
             category_name = self.object.name
             self.object.deleted = True
