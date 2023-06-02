@@ -15,9 +15,11 @@ from django.contrib.auth import logout
 from django.contrib.auth import authenticate, get_user_model
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 
 # Import the forms
 from panel.forms import *
+from panel.constants import ORDER_DELIVERED
 
 
 class LoginUser(LoginView):
@@ -164,7 +166,7 @@ class OrdersView(LoginRequiredMixin, ListView):
     template_name = 'orders.html'
 
     def get_queryset(self):
-        qs = Order.objects.filter(brand=self.request.user.profile.brand).prefetch_related('dishes').order_by('-order_placed_at')
+        qs = Order.objects.filter(brand=self.request.user.profile.brand).prefetch_related('dishes').order_by('-order_placed_at', 'status')
 
         data = {
             'orders': [],
@@ -210,8 +212,11 @@ class ChangeOrderStatus(LoginRequiredMixin, View):
         request_order = None
         if form_data.is_valid():
             try:
+                new_status = form_data.cleaned_data.get('status')
                 request_order = get_object_or_404(Order, id=self.kwargs.get('order_id'))
-                request_order.status = form_data.cleaned_data.get('status')
+                request_order.status = new_status
+                if new_status == ORDER_DELIVERED:
+                    request_order.order_delivered_at = timezone.now()
                 request_order.save()
             except:
                 messages.error(request, 'An error occured changing status. Try again.')
@@ -242,16 +247,18 @@ class ChangeOrderStatus(LoginRequiredMixin, View):
             if request_order is not None:
                 if order.id == request_order.id:
                     order_dict.update({'green': True})
-                    channel_layer = channels.layers.get_channel_layer()
-                    async_to_sync(channel_layer.group_send)(
-                        f'{request_order.order_collection_code}',
-                        {
-                            'type': 'chat_message',
-                            'status': f'{request_order.status}',
-                            'order_id': f'{request_order.id}'
-                        }
-                    )
-
+                    try:
+                        channel_layer = channels.layers.get_channel_layer()
+                        async_to_sync(channel_layer.group_send)(
+                            f'{request_order.order_collection_code}',
+                            {
+                                'type': 'chat_message',
+                                'status': f'{request_order.status}',
+                                'order_id': f'{request_order.id}'
+                            }
+                        )
+                    except:
+                        print("Failed to send notification to the client.")
             else:
                 order_dict.update({'selected': True})
 
