@@ -8,6 +8,8 @@ urlpatterns = [
 
     path('accounts/register/<uuid:register_token>', RegisterView.as_view(), name='register-new-brand'),
 
+    path('home', HomeView.as_view(), name='stats'),
+
     path('platos', Platos.as_view(), name='platos'),
     path('add-plato', AddDishView.as_view(), name='add-plato'),
     path('edit-plato/<uuid:dish_id>', EditDish.as_view(), name='edit-plato'),

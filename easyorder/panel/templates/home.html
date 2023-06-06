@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block init_scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" integrity="sha256-Uv9BNBucvCPipKQ2NS9wYpJmi8DTOEfTA/nH2aoJALw=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" integrity="sha256-aa0xaJgmK/X74WM224KMQeNQC2xYKwlAt08oZqjeF0E=" crossorigin="anonymous" />
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static '/css/kpi.css' %}">
+<script src="https://kit.fontawesome.com/c7c920eaa2.js" crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block messages %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+        {% if message.tags == 'success' %}
+            <div class="alert alert-success" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+        {% if message.tags == 'error' %}
+            <div class="alert alert-error" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+    <div class="row mt-2">
+        <div id="container">
+            <div class="kpi-card orange">
+              <span class="card-value">{{ total_amount.amount__sum|floatformat:2|intcomma }}€</span>
+              <span class="card-text">Total Sales</span>
+               <i class="fas fa-euro icon"></i>
+            </div>
+           
+           
+            <div class="kpi-card purple">
+              <span class="card-value">{{ total_orders }}</span>
+              <span class="card-text">Total Sales</span>
+                 <i class="fas fa-shopping-cart icon"></i>
+            </div>
+
+            <div class="kpi-card red">
+                <span class="card-value">{{ total_unfinished_orders }}</span>
+                <span class="card-text">Orders not finished</span>
+                   <i class="fas fa-ellipsis-stroke icon"></i>
+            </div>
+
+          </div>
+
+        {% if not has_orders %}
+            <div class="alert alert-danger" role="alert">
+                El resturante todavía no tiene pedidos. 
+            </div>
+        {% else %}
+            <canvas id="myChart" width="800" height="400"></canvas>
+        {% endif %}
+
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        let ctx = document.getElementById("myChart").getContext("2d");
+
+        let chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: [{% for item in qs %}"{{ item.id }}",{% endfor %}],
+            datasets: [
+                {
+                label: "# de pedidos",
+                backgroundColor: "#327358",
+                borderColor: "#417690",
+                data: [{% for item in qs %}"{{ item.cnt }}",{% endfor %}]
+                }
+            ]
+        },
+        options: {
+            title: {
+                text: "Total de pedidos por cada plato",
+                display: true
+            }
+        }
+        });
+
+    </script>
+{% endblock %}

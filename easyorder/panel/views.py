@@ -16,10 +16,11 @@ from django.contrib.auth import authenticate, get_user_model
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
-
+from django.views.generic import TemplateView
+from django.db.models import Sum, Q
 # Import the forms
 from panel.forms import *
-from panel.constants import ORDER_DELIVERED
+from panel.constants import ORDER_DELIVERED, ORDER_PREPARED
 
 
 class LoginUser(LoginView):
@@ -40,6 +41,31 @@ class LoginUser(LoginView):
         auth = authenticate(request, username=usr, password=passw)
         print(auth)
 
+
+class HomeView(LoginRequiredMixin, TemplateView):
+    template_name = 'home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        data = AdditionalOrder.objects.raw("""
+            SELECT d.name as id, COUNT(*) as cnt FROM additional_order ao
+            JOIN dish d ON ao.dish=d.uuid
+            JOIN brand b ON b.uuid=d.brand_id
+            WHERE b.uuid='{}'
+            GROUP BY ao.dish, d.name;
+        """.format(str(self.request.user.profile.brand.uuid)))
+        context["qs"] = data
+
+        total_amount = Order.objects.filter(brand=self.request.user.profile.brand).aggregate(Sum('amount'))
+        context["total_amount"] = total_amount
+
+        context["total_orders"] = Order.objects.filter(brand=self.request.user.profile.brand).count()
+
+        context["total_unfinished_orders"] = Order.objects.filter(brand=self.request.user.profile.brand).filter(Q(status=ORDER_DELIVERED) | Q(status=ORDER_PREPARED)).count()
+
+        context["has_orders"] = True if len(data) > 0 else False
+
+        return context
 
 class Platos(LoginRequiredMixin, ListView):
     model = Dish
