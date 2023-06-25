@@ -214,7 +214,6 @@ class OrdersView(LoginRequiredMixin, ListView):
                 'green': False,
             })
 
-        print(data)
         return data
 
     def get_context_data(self, **kwargs):
@@ -246,9 +245,7 @@ class ChangeOrderStatus(LoginRequiredMixin, View):
                 request_order.save()
             except:
                 messages.error(request, 'An error occured changing status. Try again.')
-                https_url = request.build_absolute_uri(reverse('my_url_name', scheme='https'))
                 return redirect(self.success_url)
-
 
         qs = Order.objects.filter(brand=self.request.user.profile.brand).prefetch_related('dishes').order_by('-order_placed_at')
         data = {

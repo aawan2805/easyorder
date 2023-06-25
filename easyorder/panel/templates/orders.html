@@ -22,6 +22,10 @@
 
 
 {% block content %}
+    <div class="alert alert-danger" role="alert" id="WsErrorDiv">
+        Se ha perdido la conexión para notificaciones en línea. <a href="{% url 'panel:orders' %}">Pincha aquí para refrescar.</a>
+    </div>
+  
     <div class="row mt-2">
         {% csrf_token %}
         {% if not object_list %}
@@ -56,8 +60,6 @@
     function connect() {
         
         let brand_uuid = globalOrders.brand_uuid;
-        console.log(brand_uuid)
-        console.log(window.location.host)
         chatSocket = new WebSocket("wss://" + window.location.host + "/orders/brand/" + brand_uuid );
 
         chatSocket.onopen = function(e) {
@@ -65,29 +67,29 @@
             chatSocket.send(JSON.stringify({
                 "message": "Conectado",
             }));
+
+            let div = document.getElementById("WsErrorDiv");
+            div.style.display = "none";
         }
 
         chatSocket.onclose = function(e) {
             console.log("WebSocket connection closed unexpectedly. Trying to reconnect in 2s...");
-            // setTimeout(function() {
-            //     console.log("Reconnecting...");
-            //     connect();
-            // }, 2000);
+            let div = document.getElementById("WsErrorDiv");
+            div.style.display = "block";
         };
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             const order = JSON.parse(data.message)
             globalOrders.orders.unshift(order)
-            console.log(order)
-            console.log(globalOrders)
             makeTable(globalOrders);
         };
 
         chatSocket.onerror = function(err) {
             console.log("WebSocket encountered an error: " + err.message);
-            console.log("Closing the socket.");
             chatSocket.close();
+            let div = document.getElementById("WsErrorDiv");
+            div.style.display = "block";
         }
     }
 
@@ -106,7 +108,6 @@
     }
 
     changeOrderStatus = (form) => {
-        console.log(form)
         form.submit()
     }
 
@@ -130,7 +131,6 @@
             row.appendChild(orderIdCell);
 
             const orderPlacedAtCell = document.createElement('td');
-            console.log(order.dishes)
             order.dishes.forEach(dish => {
                 dishDiv = document.createElement('div');
                 span = document.createElement('span');

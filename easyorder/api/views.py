@@ -4,6 +4,7 @@ from asgiref.sync import async_to_sync
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponseNotFound
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 from django.utils import timezone
 from django.core import serializers as django_serializer
@@ -77,16 +78,11 @@ class CategoryView(ListAPIView):
 
 class OrderView(CreateAPIView):
     serializer_class = PostNewOrder
+    http_method_names = ['post']
 
-    def create(self, request, *args, **kwargs):
-        dd = json.loads(request.data.get('body'))
-        print(json.dumps(dd, indent=4))
-        # for dish in dd['dishes']:
-        #     dish['dish_uuid'] = uuid.UUID(dish['dish_uuid'])
-        # dd['brand_uuid'] = uuid.UUID(dd['brand_uuid'])
-
+    def post(self, request, *args, **kwargs):
+        dd = request.data
         serializer = PostNewOrder(data=dd)
-
         if serializer.is_valid():
             total_amount = 0.0
         
@@ -153,6 +149,7 @@ class OrderView(CreateAPIView):
     
         print("Errors", serializer.errors)
         return Response(data=None, status=status.HTTP_401_UNAUTHORIZED)
+
 
 class OrderStatus(ListAPIView):
     http_method_names = ['get'] 
