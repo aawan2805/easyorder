@@ -44,10 +44,10 @@ class AddDish(ModelForm):
         new_dish.active = self.cleaned_data.get('active')
         new_dish.save()
 
-        # # Mark brand as active.
-        # if not brand.active and new_dish.active:
-        #     brand.active = True
-        #     brand.save()
+        # Mark brand as active.
+        if not brand.active and new_dish.active:
+            brand.active = True
+            brand.save()
 
         return new_dish
 

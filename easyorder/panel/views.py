@@ -47,19 +47,19 @@ class HomeView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        print("UUID",self.request.user.profile.brand.uuid)
         data = AdditionalOrder.objects.raw("""
-            SELECT d.name as id, COUNT(*) as cnt FROM additional_order ao
-            JOIN dish d ON ao.dish=d.uuid
-            JOIN brand b ON b.uuid=d.brand_id
+            SELECT po.order_placed_at::timestamp::date as id, COUNT(*) AS cnt FROM panel_order po
+            JOIN brand b ON b.uuid=po.brand_id
             WHERE b.uuid='{}'
-            GROUP BY ao.dish, d.name;
+            GROUP BY po.order_placed_at::timestamp::date;
         """.format(str(self.request.user.profile.brand.uuid)))
         context["qs"] = data
 
         total_amount = Order.objects.filter(brand=self.request.user.profile.brand).aggregate(Sum('amount'))
         context["total_amount"] = total_amount
 
-        context["total_orders"] = Order.objects.filter(brand=self.request.user.profile.brand).count()
+        context["total_orders"] = Order.objects.filter(brand=self.request.user.profile.brand, status=ORDER_DELIVERED).count()
 
         context["total_unfinished_orders"] = Order.objects.filter(brand=self.request.user.profile.brand).filter(Q(status=ORDER_DELIVERED) | Q(status=ORDER_PREPARED)).count()
 

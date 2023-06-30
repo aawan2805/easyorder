@@ -35,22 +35,22 @@
         <div id="container">
             <div class="kpi-card orange">
               <span class="card-value">{{ total_amount.amount__sum|floatformat:2|intcomma }}€</span>
-              <span class="card-text">Total Sales</span>
+              <span class="card-text">Beneficio</span>
                <i class="fas fa-euro icon"></i>
             </div>
            
            
             <div class="kpi-card purple">
               <span class="card-value">{{ total_orders }}</span>
-              <span class="card-text">Total Sales</span>
+              <span class="card-text">Total ventas</span>
                  <i class="fas fa-shopping-cart icon"></i>
             </div>
 
-            <div class="kpi-card red">
+            <!-- <div class="kpi-card red">
                 <span class="card-value">{{ total_unfinished_orders }}</span>
                 <span class="card-text">Orders not finished</span>
                    <i class="fas fa-ellipsis-stroke icon"></i>
-            </div>
+            </div> -->
 
           </div>
 
@@ -70,7 +70,7 @@
         let ctx = document.getElementById("myChart").getContext("2d");
 
         let chart = new Chart(ctx, {
-        type: "bar",
+        type: "line",
         data: {
             labels: [{% for item in qs %}"{{ item.id }}",{% endfor %}],
             datasets: [
