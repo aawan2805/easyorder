@@ -45,10 +45,10 @@ class AddDish(ModelForm):
         new_dish.save()
 
         # Mark brand as active.
-        if not brand.active and new_dish.active:
+        if not brand.active:
             brand.active = True
             brand.save()
-
+            print("[INFO]: Brand is now active.")
         return new_dish
 
 

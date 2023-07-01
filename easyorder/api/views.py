@@ -56,11 +56,15 @@ class CategoryView(ListAPIView):
 
         categories = []
         for category in Category.objects.filter(brand=brand, active=True, deleted=False):
-            categories.append({
+            cat = {
                 "key": category.uuid,
                 "icon": "",
                 "label": category.name 
-            })
+            }
+            if category.default:
+                categories.insert(0, cat)
+            else:
+                categories.append(cat)
 
         return categories
 
