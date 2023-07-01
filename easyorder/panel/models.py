@@ -1,5 +1,6 @@
-import uuid
-
+import uuid, os
+import smtplib
+from email.mime.text import MIMEText
 from django.db import models
 from django.db.models import JSONField
 from django.contrib.auth.models import AbstractUser
@@ -126,8 +127,29 @@ class Register(models.Model):
     email = models.EmailField()
     active = models.BooleanField(default=True)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        try:
+            print("Sending email...")
+            send_email(subject="Registro para Easyorder", 
+                    body=f"Para completar el registro, acceder a https://rocket-order.com/accounts/register/{self.token}",
+                    sender=os.environ.get('EMAIL_SENDER'),
+                    recipients=[self.email],
+                    password=os.environ.get('EMAIL_PASSWORD'))
+        except:
+            print(f"Error sending email for token {self.token}")
+
     class Meta:
         unique_together = ('token', 'email',)
 
 # class Review(models.Model):
 #     pass
+def send_email(subject, body, sender, recipients, password):
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = sender
+    msg['To'] = ', '.join(recipients)
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
+        smtp_server.login(sender, password)
+        smtp_server.sendmail(sender, recipients, msg.as_string())
+    print("Message sent!")

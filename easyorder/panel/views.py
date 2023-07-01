@@ -409,29 +409,29 @@ class RegisterView(CreateView):
         return render(request, self.template_name, {'form': form, 'uuid': uuid})
 
     def post(self, request, *args, **kwargs):
-
         form = self.get_form_class()
         data_form = form(self.request.POST)
         if data_form.is_valid():
             # Verify if the token is valid.
             tk = Register.objects.filter(token=self.kwargs.get('register_token', None))
             if not tk or not tk[0].active or (tk[0].token != self.kwargs.get('register_token')):
-                messages.warning(self.request, 'Brand is already registered. Please log in.')
+                messages.warning(self.request, 'Brand or Token is already registered. Please log in.')
                 return redirect(self.success_url)
 
-            created_user = data_form.save()
+            created_user = data_form.save(token=tk[0])
+            uuid = self.kwargs['register_token']
+
             if created_user:
                 tk[0].active = False
                 tk[0].save()
                 messages.success(self.request, f'Usuario {data_form.cleaned_data.get("username")} creado.') 
             else:
                 messages.error(self.request, f'No se ha podido crear el usuario. Inténtalo más tarde.') 
-                return render(self.request, self.template_name, {'form': data_form, 'uuid': uuid})
+                return render(self.request, self.template_name, {'form': data_form, 'uuid': self.kwargs['register_token']})
 
         if not data_form.is_valid():
-            uuid = self.kwargs['register_token']
             messages.error(self.request, 'Por favor corrige los errores.')
-            return render(self.request, self.template_name, {'form': data_form, 'uuid': uuid})
+            return render(self.request, self.template_name, {'form': data_form, 'uuid': self.kwargs['register_token']})
 
         return redirect(self.success_url) 
 

@@ -13,6 +13,15 @@
 </head>
 <body class="background no-footer">
     <div class="container">
+      {% if messages %}
+      <div class="container">
+          {% for message in messages %}
+              <div class="alert alert-danger" role="alert">
+                  {{ message }}
+              </div>
+          {% endfor %}
+      </div>
+    {% endif %}
         {% if form.errors %}
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <strong>Fix the error below and try again.</strong>
@@ -41,13 +50,13 @@
                 <span class="text-danger">{{ error }}</span>
               {% endfor %}
             </div>
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <label for="inputEmail">Email</label>
                 {{ form.email }}
                 {% for error in form.email.errors %}
                 <span class="text-danger">{{ error }}</span>
               {% endfor %}
-            </div>
+            </div> -->
 
             <div class="form-row">
                 <div class="form-group col-md-6">

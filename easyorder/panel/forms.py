@@ -165,7 +165,7 @@ class RegistrationForm(ModelForm):
     phone_number = forms.CharField(max_length=20, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'phone_number'}))
     main_address = forms.CharField(max_length=100, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'main_address'}))
 
-    def save(self, commit=False):
+    def save(self, commit=False, token=None):
         try:
             # Add the user
             # Add brand
@@ -182,7 +182,7 @@ class RegistrationForm(ModelForm):
             new_brand = Brand.objects.create(name=self.cleaned_data.get('name'),
                                 phone_number=self.cleaned_data.get('phone_number'),
                                 main_address=self.cleaned_data.get('main_address'),
-                                email=self.cleaned_data.get('email'))
+                                email=token.email or None)
             new_brand.save()
 
             try:
