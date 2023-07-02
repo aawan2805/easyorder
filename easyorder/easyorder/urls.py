@@ -20,6 +20,7 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include('django.contrib.auth.urls')),
     path('', include(('panel.urls', 'panel'), namespace='panel')),
     path('api/', include(('api.urls', 'api'), namespace='api')),
     path('', include('django_prometheus.urls')),

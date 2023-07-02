@@ -162,7 +162,7 @@ class AddCategoryFrom(ModelForm):
 
 class RegistrationForm(ModelForm):
     name = forms.CharField(max_length=50, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'id_name'}))
-    phone_number = forms.CharField(max_length=20, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'phone_number'}))
+    phone_number = forms.CharField(max_length=9, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'phone_number'}))
     main_address = forms.CharField(max_length=100, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'main_address'}))
 
     def save(self, commit=False, token=None):
@@ -174,7 +174,8 @@ class RegistrationForm(ModelForm):
             # Invalidate the token
             new_user = User.objects.create(username=self.cleaned_data.get('username'),
                             first_name=self.cleaned_data.get('first_name'),
-                            last_name=self.cleaned_data.get('last_name'))
+                            last_name=self.cleaned_data.get('last_name'),
+                            email=token.email)
             new_user.set_password(self.cleaned_data.get('password'))
             new_user.save()
 
@@ -182,7 +183,7 @@ class RegistrationForm(ModelForm):
             new_brand = Brand.objects.create(name=self.cleaned_data.get('name'),
                                 phone_number=self.cleaned_data.get('phone_number'),
                                 main_address=self.cleaned_data.get('main_address'),
-                                email=token.email or None)
+                                email=token.email)
             new_brand.save()
 
             try:

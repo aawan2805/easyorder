@@ -2,6 +2,7 @@ import json, os
 import channels.layers
 from asgiref.sync import async_to_sync
 from typing import Any
+from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.views import LoginView
 from django.db import models
@@ -445,3 +446,6 @@ class QRBrand(LoginRequiredMixin, View):
         return render(request, self.template_name, {
             'img': path_to_save_qr + f'/qr_{request.user.profile.brand.uuid}.png'
         })
+
+
+# Password reset methods

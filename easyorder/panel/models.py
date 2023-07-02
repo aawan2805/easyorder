@@ -13,7 +13,7 @@ from panel.constants import ORDER_CHOICES, ORDER_PLACED
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=False, blank=False)
     brand = models.OneToOneField('Brand', on_delete=models.CASCADE, null=False, blank=False)
-    address = models.CharField(max_length=100, null=True, default='', blank=True)
+    address = models.CharField(max_length=300, null=True, default='', blank=True)
 
 
 def qr_directory_path(instance, filename):
@@ -22,10 +22,10 @@ def qr_directory_path(instance, filename):
 
 class Brand(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True)
-    name = models.CharField(max_length=50)
-    phone_number = models.CharField(max_length=20)
-    main_address = models.CharField(max_length=100)
-    email = models.CharField(max_length=30)
+    name = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=9)
+    main_address = models.CharField(max_length=300)
+    email = models.CharField(max_length=300)
     active = models.BooleanField(default=False)
     qr = models.ImageField(upload_to=qr_directory_path, blank=True, null=True)   
 
@@ -43,7 +43,7 @@ class Category(models.Model):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, primary_key=True)
     name = models.CharField(max_length=45)
     brand = models.ForeignKey(Brand, models.DO_NOTHING, related_name='categories')
-    icon = models.CharField(max_length=15)
+    icon = models.CharField(max_length=50)
     default = models.BooleanField(default=False)
     # active = models.BooleanField(default=True, null=False)
     priority = models.IntegerField(null=False, default=1)
@@ -67,7 +67,7 @@ def dishes_directory_path(instance, filename):
 # Create your models here.
 class Dish(models.Model):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, primary_key=True)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=100)
     description = models.CharField(max_length=150)
     price = models.FloatField()
     category = models.ForeignKey(Category, models.DO_NOTHING, related_name='dishes')
@@ -96,7 +96,7 @@ class Order(models.Model):
     dishes = models.ManyToManyField(Dish, through='AdditionalOrder', related_name='orders')
     order_placed_at = models.DateTimeField(blank=False, null=False)
     order_delivered_at = models.DateTimeField(blank=True, null=True)
-    ws_code = models.CharField(max_length=50, unique=False)
+    ws_code = models.CharField(max_length=100, unique=False)
     status = models.IntegerField(default=ORDER_PLACED, choices=ORDER_CHOICES)
     brand = models.ForeignKey(Brand, related_name='orders', on_delete=models.DO_NOTHING)
     amount = models.FloatField(default=0.0)

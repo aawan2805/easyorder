@@ -42,6 +42,9 @@
             <li class="nav-item {% if request.path == '/qr' %}active{%endif%}">
               <a class="nav-link" href="{% url 'panel:qr' %}">My QR</a>
             </li>
+            <li class="nav-item {% if request.path == '/qr' %}active{%endif%}">
+              <a class="nav-link" href="{% url 'password_change' %}">Cambiar contraseña</a>
+            </li>
             <li class="nav-item {% if request.path == '/' %}active{%endif%}">
               <a class="nav-link" href="{% url 'panel:logout' %}">Logout</a>
             </li>
